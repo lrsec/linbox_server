@@ -1,0 +1,31 @@
+<configuration debug="false">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/tmp/logging/im-server/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %level [%thread] %logger.%class{0}#%method [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org" level="ERROR" />
+    <logger name="sun" level="ERROR" />
+    <logger name="com.trendrr.nsq" level="ERROR" />
+
+    <root level="DEBUG">
+        <appender-ref ref="stdout" />
+        <appender-ref ref="ROLLING" />
+    </root>
+</configuration>
