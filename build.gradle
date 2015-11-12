@@ -1,0 +1,49 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.linbox'
+version = '1.0-SNAPSHOT'
+
+
+description = 'linbox server'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'redis.clients:jedis:2.7.2'
+    compile 'ch.qos.logback:logback-classic:1.1.3'
+    compile 'org.springframework:spring-context:4.2.2.RELEASE'
+
+    testCompile 'junit:junit:3.8.1'
+}
+
+build.doLast {
+    copy {
+        from 'src/main/config'
+        into 'build/target/config'
+        include '**/*.properties'
+        include '**/*.xml'
+
+        includeEmptyDirs = true
+    }
+
+    copy {
+        from 'build/libs'
+        from configurations.runtime
+        into 'build/target/libs'
+
+        includeEmptyDirs = true
+    }
+}
+
+task zip(type: Zip, dependsOn: 'build') {
+    from 'build/target'
+    into 'linbox_server'
+
+    baseName = 'linbox_server'
+}
