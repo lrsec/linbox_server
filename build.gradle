@@ -4,7 +4,6 @@ apply plugin: 'maven'
 group = 'com.linbox'
 version = '1.0-SNAPSHOT'
 
-
 description = 'linbox server'
 
 sourceCompatibility = 1.7
