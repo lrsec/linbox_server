@@ -2,23 +2,38 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	   http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <context:annotation-config />
-    <context:component-scan base-package="com.linbox" />
+    <context:component-scan base-package="com.medtree.im" />
 
+    <bean id="propertyConfiger" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath*:im.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--Mysql Configs-->
     <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
         <property name="poolName" value="springHikariCP" />
         <property name="connectionTestQuery" value="SELECT 1" />
         <property name="dataSourceClassName"       value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
         <property name="dataSourceProperties">
             <props>
-                <prop key="url">jdbc:mysql://localhost/medtree1</prop>
-                <prop key="user">root</prop>
-                <prop key="password">root</prop>
-                <prop key="cachePrepStmts">true</prop>
-                <prop key="prepStmtCacheSize">300</prop>
-                <prop key="prepStmtCacheSqlLimit">2048</prop>
+                <prop key="url">${mysql.url}</prop>
+                <prop key="user">${mysql.user}</prop>
+                <prop key="password">${mysql.password}</prop>
+                <prop key="cachePrepStmts">${mysql.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${mysql.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${mysql.prepStmtCacheSqlLimit}</prop>
             </props>
         </property>
     </bean>
@@ -30,5 +45,56 @@
     <bean id="sql2o" class="org.sql2o.Sql2o">
         <constructor-arg type='javax.sql.DataSource' ref="mysqlDataSource"/>
     </bean>
+    <!--Mysql Configs-->
+
+    <!--Redis Configs-->
+    <bean id="redisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxActive}"/>
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <property name="maxWaitMillis" value="${redis.maxWaitMilli}"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="poolConfig" ref="redisPoolConfig"/>
+        <constructor-arg name="host" value="${redis.host}"/>
+        <constructor-arg name="port" value="${redis.port}"/>
+        <constructor-arg name="timeout" value="${redis.timeout}"/>
+    </bean>
+    <!--Redis Configs-->
+
+    <!--dubbo rpc config-->
+    <dubbo:application name="medtree-service-im" owner="medtree"/>
+    <dubbo:registry address="zookeeper://zknode1:2181?backup=zknode2:2182" />
+    <dubbo:protocol name="dubbo" port="20881" />
+
+    <bean id="imService" class="com.medtree.im.server.connector.rpc.IMService"></bean>
+    <dubbo:service interface="com.medtree.im.interfaces.IIMService" ref="imService" timeout="5000" loadbalance="roundrobin"/>
+    <!--dubbo rpc config-->
+
+    <!--Kafka Configs-->
+    <bean id="kafkaProducer" class="org.apache.kafka.clients.producer.KafkaProducer">
+        <constructor-arg name="configs">
+            <map>
+                <entry key="bootstrap.servers" value="${bootstrap.servers}" />
+                <entry key="acks" value="${acks}" />
+                <entry key="retries" value="${retries}" />
+                <entry key="batch.size" value="${batch.size}" />
+                <entry key="linger.ms" value="${linger.ms}" />
+                <entry key="buffer.memory" value="${buffer.memory}" />
+                <entry key="key.serializer" value="${key.serializer}" />
+                <entry key="value.serializer" value="${value.serializer}" />
+            </map>
+        </constructor-arg>
+    </bean>
+    <!--Kafka Configs-->
+
+    <!--IM TCP Server-->
+    <bean id="imTcpServer" class="com.medtree.im.server.connector.tcp.ImTcpServer"/>
+    <!--IM TCP Server-->
+
+    <!--IM Router Server-->
+    <bean id="imRouterServer" class="com.medtree.im.server.router.ImRouterServer"/>
+    <!--IM Router Server-->
 
 </beans>

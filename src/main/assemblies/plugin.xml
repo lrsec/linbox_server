@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<assembly>
+    <id>im_server</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/src/main/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/config/</directory>
+            <outputDirectory>/config</outputDirectory>
+            <fileMode>0777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/resource/</directory>
+            <outputDirectory>/resource</outputDirectory>
+            <fileMode>0777</fileMode>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,2 @@
+#java -cp ".:../lib/*:../config" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5100 com.medtree.im.client.TcpClient $1
+java -cp ".:../lib/*:../config"  com.medtree.im.client.TcpClient $1

@@ -25,7 +25,7 @@
     <logger name="com.trendrr.nsq" level="ERROR" />
 
     <root level="DEBUG">
-        <appender-ref ref="stdout" />
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="ROLLING" />
     </root>
 </configuration>
