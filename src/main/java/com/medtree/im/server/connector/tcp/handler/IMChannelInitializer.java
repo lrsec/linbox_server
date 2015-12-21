@@ -17,7 +17,7 @@ public class IMChannelInitializer extends ChannelInitializer<SocketChannel> {
     private static final int MAX_HANDLE_TIME_MILLIS = 5 * 1000;
     private static final int IDLE_LOOP_IN_SEC = 60;
 
-    private static final ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring.xml");
+    private static final ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring/spring.xml");
 
     private ScheduledExecutorService executorService;
 

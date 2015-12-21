@@ -148,7 +148,7 @@ public class ImRouterServer {
 
     public static void main(String[] args) {
         try {
-            ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring.xml");
+            ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring/router.xml");
 
             ImRouterServer server = (ImRouterServer) appContext.getBean("imRouterServer");
             server.run();

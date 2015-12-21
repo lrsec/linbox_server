@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-defaultTasks 'clean', 'zip'
+defaultTasks 'zip'
 
 group = 'com.linbox'
 version = '1.0'
@@ -12,6 +12,9 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 repositories {
+
+    mavenLocal()
+
     maven {
         url 'http://repo.mobimind.net/nexus/content/groups/mobimind-all'
     }
@@ -21,7 +24,10 @@ repositories {
         artifactUrls 'http://repository.jboss.org/nexus/content/groups/public-jboss'
     }
 
-    mavenCentral()
+}
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 dependencies {
@@ -49,7 +55,7 @@ dependencies {
     compile 'org.apache.kafka:kafka-clients:0.9.0.0'
 
     //dubbo
-    compile ('com.alibaba:dubbo:2.5.3') {
+    compile group: "com.alibaba", name: "dubbo", version: "2.5.4-SNAPSHOT", changing: true,  {
         exclude module: 'spring'
     }
     compile 'com.github.sgroschupf:zkclient:0.1'
@@ -61,36 +67,28 @@ dependencies {
     testCompile 'junit:junit:3.8.1'
 }
 
-task copy(type:Copy, dependsOn: 'build') {
-    copy {
-        from 'src/main/config'
-        into 'build/target/config'
+task copyConfig(type: Copy, dependsOn: 'build') {
+    from 'src/main/config'
+    from 'src/main/resource'
 
-        includeEmptyDirs = true
-    }
-
-    copy {
-        from 'src/main/resource'
-        into 'build/target/resource'
-    }
-
-    copy {
-        from 'build/libs'
-        into 'build/target/lib'
-    }
-
-    copy {
-        from configurations.runtime
-        into 'build/target/lib'
-    }
-
-    copy {
-        from 'src/main/bin'
-        into 'build/target/bin'
-    }
+    into 'build/target/config'
 }
 
-task zip(type: Zip, dependsOn: 'copy') {
+task copyBin(type: Copy, dependsOn: 'copyConfig') {
+    from 'src/main/bin'
+    into 'build/target/bin'
+}
+
+task copyLibs(type: Copy, dependsOn: 'copyBin') {
+    from configurations.runtime
+    from 'build/libs'
+
+    into 'build/target/lib'
+}
+
+task zip(type: Zip, dependsOn: 'copyLibs') {
+    outputs.upToDateWhen { false }
+
     from 'build/target'
     into 'linbox_server'
 }

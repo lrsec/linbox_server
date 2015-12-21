@@ -70,7 +70,7 @@ public class ImTcpServer {
     }
 
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring.xml");
+        ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring/tcp.xml");
 
         try {
             ImTcpServer server = (ImTcpServer)appContext.getBean("imTcpServer");
