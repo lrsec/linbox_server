@@ -7,8 +7,8 @@ import com.alibaba.fastjson.annotation.JSONField;
  */
 public class OfflineInfo extends ByteCreator{
     // user chat id
-    @JSONField(name="user_chat_id")
-    public String userChatId;
+    @JSONField(name="user_id")
+    public String userId;
 
     // 返回信息,客户端显示给用户下线原因
     @JSONField(name = "reason")

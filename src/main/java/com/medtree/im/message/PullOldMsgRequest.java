@@ -13,16 +13,16 @@ public class PullOldMsgRequest extends ByteCreator{
     @JSONField(name = "r_id")
     public long rId;
 
-    // user chat id
-    @JSONField(name = "user_chat_id")
-    public String userChatId;
+    // user id
+    @JSONField(name = "user_id")
+    public String userId;
 
-    // remote chatter id
-    @JSONField(name = "remote_chat_id")
-    public String remoteChatId;
+    // remote id
+    @JSONField(name = "remote_id")
+    public String remoteId;
 
-    @JSONField(name = "group_chat_id")
-    public String groupChatId;
+    @JSONField(name = "group_id")
+    public String groupId;
 
     // max message id want to pull
     @JSONField(name = "max_msg_id")

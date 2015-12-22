@@ -11,15 +11,15 @@ public class PullOldMsgResponse extends ByteCreator {
     public long rId;
 
     // user chat id
-    @JSONField(name = "user_chat_id")
-    public String userChatId;
+    @JSONField(name = "user_id")
+    public String userId;
 
     // remote chatter id
-    @JSONField(name = "remote_chat_id")
-    public String remoteChatId;
+    @JSONField(name = "remote_id")
+    public String remoteId;
 
-    @JSONField(name = "group_chat_id")
-    public String groupChatId;
+    @JSONField(name = "group_id")
+    public String groupId;
 
     // 消息
     @JSONField(name = "msgs")

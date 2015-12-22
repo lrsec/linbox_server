@@ -40,13 +40,12 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     private long rId = -1;
     private String userId = null;
-    private String userChatId = null;
     private AES aes = null;
 
     private JedisPool jedisPool;
-    private IUserDAO userDAO;
     private IOutboxService outboxService;
     private IConsumerMonitorService consumerMonitorService;
+    private IUserDAO userDAO;
 
     public AuthHandler(ClassPathXmlApplicationContext applicationContext, ScheduledExecutorService executor, int loopRatio, int maxHandleTimeInMills, AES aes) {
         this.executor = executor;
@@ -54,9 +53,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         this.maxHandleTimeInMills = maxHandleTimeInMills;
         this.aes = aes;
         this.jedisPool = (JedisPool)applicationContext.getBean("jedisPool");
-        this.userDAO = (IUserDAO)applicationContext.getBean("userDAO");
         this.outboxService = (IOutboxService)applicationContext.getBean("outboxService");
         this.consumerMonitorService = (IConsumerMonitorService)applicationContext.getBean("consumerMonitorService");
+        this.userDAO = (IUserDAO) applicationContext.getBean("userDAO");
     }
 
     @Override
@@ -91,7 +90,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
         AuthRequest authRequest = (AuthRequest) wrapper.content;
         rId = authRequest.rId;
-        boolean authenticated = isCertified(authRequest.userChatId);
+        boolean authenticated = isCertified(authRequest);
 
         if (authenticated) {
             logger.debug("User {} authenticated.", userId);
@@ -142,16 +141,8 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private boolean isCertified(String chatId) {
-        String id = userDAO.getUserId(chatId);
-
-        if(!StringUtils.isBlank(id)) {
-            userChatId = chatId;
-            userId = id;
-            return true;
-        }
-
-        return false;
+    private boolean isCertified(AuthRequest request) {
+        return userDAO.isUserValid(request.userId, request.token);
     }
 
     private class SendMessageChecker implements Runnable {
@@ -254,7 +245,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
         private void sendOfflineInfo() {
             OfflineInfo offlineInfo = new OfflineInfo();
-            offlineInfo.userChatId = userChatId;
+            offlineInfo.userId = userId;
 
             MonitorMeta meta = new MonitorMeta();
             MessageWrapper wrapper = offlineInfo.toWrapper(meta);
@@ -271,7 +262,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
         AuthResponse response = new AuthResponse();
         response.rId = rId;
-        response.userChatId = userChatId;
+        response.userId = userId;
         response.status = 200;
         response.sendTime = System.currentTimeMillis();
 
@@ -284,7 +275,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
         AuthResponse response = new AuthResponse();
         response.rId = rId;
-        response.userChatId = userChatId;
+        response.userId = userId;
         response.status = status;
         response.errMsg = errCode;
         response.sendTime = System.currentTimeMillis();

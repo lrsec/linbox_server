@@ -68,7 +68,7 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
         switch(type) {
             case SyncUnreadRequestMsg:
 
-                if (!StringUtils.equalsIgnoreCase(userId, userDAO.getUserId (((SyncUnreadRequest)wrapper.content).userChatId))) {
+                if (!StringUtils.equalsIgnoreCase(userId, ((SyncUnreadRequest)wrapper.content).userId)) {
                     logger.error("The chat id is not match for {}. Authenticated user id: {}. Message content: {}", type.getName(), userId, json);
                     return;
                 }
@@ -78,7 +78,7 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
 
             case ReadAckRequestMsg:
 
-                if (!StringUtils.equalsIgnoreCase(userId, userDAO.getUserId (((ReadAckRequest)wrapper.content).userChatId))) {
+                if (!StringUtils.equalsIgnoreCase(userId, ((ReadAckRequest)wrapper.content).userId)) {
                     logger.error("The chat id is not match for {}. Authenticated user id: {}. Message content: {}", type.getName(), userId, json);
                     return;
                 }
@@ -88,7 +88,7 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
 
             case PullOldMsgRequestMsg:
 
-                if (!StringUtils.equalsIgnoreCase(userId, userDAO.getUserId (((PullOldMsgRequest)wrapper.content).userChatId))) {
+                if (!StringUtils.equalsIgnoreCase(userId, ((PullOldMsgRequest)wrapper.content).userId)) {
                     logger.error("The chat id is not match for {}. Authenticated user id: {}. Message content: {}", type.getName(), userId, json);
                     return;
                 }
@@ -98,7 +98,7 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
 
             case SendMsgRequestMsg:
 
-                if (!StringUtils.equalsIgnoreCase(userId, userDAO.getUserId (((SendMsgRequest)wrapper.content).userChatId))) {
+                if (!StringUtils.equalsIgnoreCase(userId, ((SendMsgRequest)wrapper.content).userId)) {
                     logger.error("The chat id is not match for {}. Authenticated user id: {}. Message content: {}", type.getName(), userId, json);
                     return;
                 }
@@ -108,7 +108,7 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
 
             case Ping:
 
-                if (!StringUtils.equalsIgnoreCase(userId, userDAO.getUserId (((Ping)wrapper.content).userChatId))) {
+                if (!StringUtils.equalsIgnoreCase(userId, ((Ping)wrapper.content).userId)) {
                     logger.error("The chat id is not match for {}. Authenticated user id: {}. Message content: {}", type.getName(), userId, json);
                     return;
                 }

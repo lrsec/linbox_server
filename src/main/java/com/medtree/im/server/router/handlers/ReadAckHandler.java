@@ -32,13 +32,7 @@ public class ReadAckHandler implements Handler<String, String> {
     private IConsumerMonitorService consumerMonitorService;
 
     @Autowired
-    private IUserDAO userDAO;
-
-    @Autowired
     private IInboxService inboxService;
-
-    @Autowired
-    private IGroupDAO groupDAO;
 
     @Autowired
     private IOutboxService outboxService;
@@ -57,7 +51,7 @@ public class ReadAckHandler implements Handler<String, String> {
             ReadAckRequest request = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), ReadAckRequest.class);
             wrapper.content = request;
 
-            String userId = userDAO.getUserId(request.userChatId);
+            String userId = request.userId;
             if(StringUtils.isBlank(userId)) {
                 logger.error("Can not find avaiable user id for ReadAckRequest {}", json);
                 return;
@@ -73,12 +67,12 @@ public class ReadAckHandler implements Handler<String, String> {
 
                 switch(type) {
                     case Session:
-                        String remoteId = userDAO.getUserId(request.remoteChatId);
+                        String remoteId = request.remoteId;
 
                         if (StringUtils.isBlank(remoteId)) {
                             logger.error("Can not find remote id for ReadAckRequest {}", json);
 
-                            throw new IMException("Non existing remote_chat_id " + StringUtils.trimToEmpty(request.remoteChatId));
+                            throw new IMException("Non existing ReadAckRequest " + json);
                         }
 
                         inboxService.removeSessionMsg(userId, IMUtils.getSessionKey(userId, remoteId), request.msgId);
@@ -87,12 +81,12 @@ public class ReadAckHandler implements Handler<String, String> {
 
                         break;
                     case Group:
-                        String groupId = groupDAO.getGroupId(request.groupChatId);
+                        String groupId = request.groupId;
 
                         if (StringUtils.isBlank(groupId)) {
                             logger.error("Can not find group id for ReadAckRequest {}", json);
 
-                            throw new IMException("Non existing group_chat_id " + StringUtils.trimToEmpty(request.groupChatId));
+                            throw new IMException("Non existing ReadAckRequest " + json);
                         }
 
                         inboxService.removeGroupMsg(userId, groupId, request.msgId);
@@ -123,9 +117,9 @@ public class ReadAckHandler implements Handler<String, String> {
 
         ReadAckResponse response = new ReadAckResponse();
         response.rId = request.rId;
-        response.userChatId = request.userChatId;
-        response.remoteChatId = request.remoteChatId;
-        response.groupChatId = request.groupChatId;
+        response.userId = request.userId;
+        response.remoteId = request.remoteId;
+        response.groupId = request.groupId;
         response.type = request.type;
         response.status = 200;
 
@@ -139,9 +133,9 @@ public class ReadAckHandler implements Handler<String, String> {
 
         ReadAckResponse response = new ReadAckResponse();
         response.rId = request.rId;
-        response.userChatId = request.userChatId;
-        response.remoteChatId = request.remoteChatId;
-        response.groupChatId = request.groupChatId;
+        response.userId = request.userId;
+        response.remoteId = request.remoteId;
+        response.groupId = request.groupId;
         response.type = request.type;
         response.status = 500;
         response.errCode = errMsg;

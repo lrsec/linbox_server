@@ -22,18 +22,6 @@ public class GroupDAO implements IGroupDAO {
     private Sql2o sql2o;
 
     @Override
-    // Group 不再区分 id 与 chatId
-    public String getGroupId(String groupChatId) {
-        return groupChatId;
-    }
-
-    @Override
-    // Group 不再区分 id 与 chatId
-    public String getGroupChatId(String groupId) {
-        return groupId;
-    }
-
-    @Override
     // TODO
     // 临时的快捷实现，应当使用 rpc 调用通过 consult service 获取,保证数据一致性
     public List<String> getGroupMembers(String groupId) {

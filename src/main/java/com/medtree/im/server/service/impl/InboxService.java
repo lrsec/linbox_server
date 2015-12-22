@@ -66,8 +66,8 @@ public class InboxService extends StopcockService<String> implements IInboxServi
                     newUnreadMsg.msg = msg;
                     newUnreadMsg.msgId = msg.msgId;
                     newUnreadMsg.count = oldUnreadMsg == null ? 1 : (oldUnreadMsg.count + msg.msgId - oldUnreadMsg.msgId);
-                    newUnreadMsg.userChatId = (StringUtils.equals(id, msg.fromUserId)) ? msg.fromChatId : msg.toChatId;
-                    newUnreadMsg.remoteChatId = (StringUtils.equals(id, msg.fromUserId)) ? msg.toChatId : msg.fromChatId;
+                    newUnreadMsg.userId = (StringUtils.equals(id, msg.fromUserId)) ? msg.fromUserId : msg.toUserId;
+                    newUnreadMsg.remoteId = (StringUtils.equals(id, msg.fromUserId)) ? msg.toUserId : msg.fromUserId;
                     newUnreadMsg.type = msg.type;
                 } else {
                     newUnreadMsg = oldUnreadMsg;

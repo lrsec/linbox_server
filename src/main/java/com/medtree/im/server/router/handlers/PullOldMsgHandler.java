@@ -36,9 +36,6 @@ public class PullOldMsgHandler implements Handler<String, String> {
     public static final Logger logger = LoggerFactory.getLogger(PullOldMsgHandler.class);
 
     @Autowired
-    private IUserDAO userDao;
-
-    @Autowired
     private IOutboxService outboxService;
 
     @Autowired
@@ -79,7 +76,7 @@ public class PullOldMsgHandler implements Handler<String, String> {
                 request.minMsgId = 0;
             }
 
-            String userId = userDao.getUserId(request.userChatId);
+            String userId = request.userId;
             if (StringUtils.isBlank(userId)) {
                 logger.error("Can not find avaiable user id for PullOldMsgRequest {}", json);
                 return;
@@ -98,18 +95,18 @@ public class PullOldMsgHandler implements Handler<String, String> {
                 switch (type) {
                     case Session:
 
-                        String remoteId = userDao.getUserId(request.remoteChatId);
+                        String remoteId = request.remoteId;
                         if (StringUtils.isBlank(remoteId)) {
                             logger.error("Can not find corresponding remote id for PullOldMsgRequest: {}", json);
 
-                            throw new IMException("Cannot find remote id for remote_chat_id: " + StringUtils.trimToEmpty(request.remoteChatId));
+                            throw new IMException("Cannot find remote id for PullOldMsgRequest: " + json);
                         }
 
                         String sessionId = IMUtils.getSessionKey(userId, remoteId);
                         List<SessionMessageEntity> sessionDaos = sessionMessageDAO.findMsg(sessionId, request.maxMsgId, request.minMsgId, request.limit);
 
                         for (SessionMessageEntity dao : sessionDaos) {
-                            Message m = Message.convertToMsg(dao, userId, request.userChatId, request.remoteChatId);
+                            Message m = Message.convertToMsg(dao, userId);
                             msgs.add(m);
                         }
 
@@ -120,11 +117,11 @@ public class PullOldMsgHandler implements Handler<String, String> {
                         break;
                     case Group:
 
-                        String groupId = groupDAO.getGroupId(request.groupChatId);
+                        String groupId = request.groupId;
                         if (StringUtils.isBlank(groupId)) {
                             logger.error("Can not find corresponding groupId id for PullOldMsgRequest: {}", json);
 
-                            throw new IMException("Cannot find groupId id for groupId_chat_id: " + StringUtils.trimToEmpty(request.groupChatId));
+                            throw new IMException("Cannot find groupId id for PullOldMsgRequest: " + json);
                         }
 
                         List<GroupMessageEntity> groupDaos = groupMessageDAO.findMsg(groupId, request.maxMsgId, request.minMsgId, request.limit);
@@ -132,13 +129,7 @@ public class PullOldMsgHandler implements Handler<String, String> {
                         for (GroupMessageEntity dao : groupDaos) {
 
                             String fromUserId = Long.toString(dao.FromUserID);
-
-                            String fromChatId =
-                                    StringUtils.equals(fromUserId, userId) ?
-                                            request.userChatId :
-                                            userDao.getUserChatId(fromUserId);
-
-                            Message m = Message.convertToMsg(dao, fromUserId, fromChatId, groupId, request.groupChatId);
+                            Message m = Message.convertToMsg(dao, fromUserId, groupId);
 
                             msgs.add(m);
                         }
@@ -171,9 +162,9 @@ public class PullOldMsgHandler implements Handler<String, String> {
 
         PullOldMsgResponse response = new PullOldMsgResponse();
         response.rId = request.rId;
-        response.userChatId = request.userChatId;
-        response.remoteChatId = request.remoteChatId;
-        response.groupChatId = request.groupChatId;
+        response.userId = request.userId;
+        response.remoteId = request.remoteId;
+        response.groupId = request.groupId;
         response.msgs = result.toArray(new Message[0]);
         response.type = request.type;
         response.maxMsgIdInRequest = (request.maxMsgId == Long.MAX_VALUE) ? -1 : request.maxMsgId;
@@ -190,9 +181,10 @@ public class PullOldMsgHandler implements Handler<String, String> {
         PullOldMsgResponse errResp = new PullOldMsgResponse();
 
         errResp.rId = request.rId;
-        errResp.userChatId = request.userChatId;
-        errResp.remoteChatId = request.remoteChatId;
-        errResp.groupChatId = request.groupChatId;
+        errResp.userId = request.userId;
+        errResp.remoteId = request.remoteId;
+        errResp.groupId = request.groupId;
+
         errResp.msgs = new Message[0];
         errResp.type = request.type;
         errResp.maxMsgIdInRequest = (request.maxMsgId == Long.MAX_VALUE) ? -1 : request.maxMsgId;

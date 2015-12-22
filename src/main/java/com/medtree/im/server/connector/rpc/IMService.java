@@ -40,12 +40,6 @@ public class IMService implements IIMService {
     private KafkaProducer<String,String> kafkaProducer;
 
     @Autowired
-    private IUserDAO userDAO;
-
-    @Autowired
-    private IGroupDAO groupDAO;
-
-    @Autowired
     private IIDService idService;
 
     @Autowired
@@ -97,12 +91,9 @@ public class IMService implements IIMService {
         }
 
         long current = System.currentTimeMillis();
-        String fromUserChatId = userDAO.getUserChatId(fromUserId);
 
         String toUserId = null;
-        String toUserChatId = null;
         String toGroupId = null;
-        String toGroupChatId = null;
 
         MessageType type = MessageType.parse(messageType);
         if (type == null) {
@@ -113,11 +104,9 @@ public class IMService implements IIMService {
         switch (type) {
             case Session:
                 toUserId = toId;
-                toUserChatId = userDAO.getUserChatId(toUserId);
                 break;
             case Group:
                 toGroupId = toId;
-                toGroupChatId = groupDAO.getGroupChatId(toId);
                 break;
             default:
                 logger.warn("Unknown message type {} in sending message through rpc service.", type.getName());
@@ -127,11 +116,8 @@ public class IMService implements IIMService {
         Message msg = new Message();
         msg.rId = current;
         msg.fromUserId = fromUserId;
-        msg.fromChatId = fromUserChatId;
         msg.toUserId = toUserId;
-        msg.toChatId = toUserChatId;
         msg.groupId = toGroupId;
-        msg.groupChatId = toGroupChatId;
         msg.msgId = -1;
         msg.mineType = mineType;
         msg.content = content;
@@ -140,9 +126,9 @@ public class IMService implements IIMService {
 
         SendMsgRequest request = new SendMsgRequest();
         request.rId = current;
-        request.userChatId = fromUserChatId;
-        request.remoteChatId = toUserChatId;
-        request.groupChatId = toGroupChatId;
+        request.userId = fromUserId;
+        request.remoteId = toUserId;
+        request.groupId = toGroupId;
         request.msg = msg;
         request.type = messageType;
 

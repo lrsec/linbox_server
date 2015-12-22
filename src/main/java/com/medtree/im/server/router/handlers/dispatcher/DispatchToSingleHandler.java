@@ -64,36 +64,36 @@ public class DispatchToSingleHandler implements Handler<String, String> {
 
     private void dealSingleMessage(SendDispatchMessage dispatchMessage) {
         String userId = dispatchMessage.getUserId();
-        String userChatId = dispatchMessage.getUserChatId();
-        String remoteChatId = dispatchMessage.getRemoteChatId();
+        String remoteId = dispatchMessage.getRemoteId();
         String sessionKey = dispatchMessage.getSessionKey();
         Message message = dispatchMessage.getMessage();
 
         inboxService.updateSessionMsg(userId, sessionKey, message);
-        sendNewMsgToUser(userId, userChatId, remoteChatId, MessageType.Session);
+        sendNewMsgToUser(userId, remoteId, MessageType.Session);
         sendPush(message);
     }
 
     private void dealGroupMessage(SendDispatchMessage dispatchMessage) {
         String userId = dispatchMessage.getUserId();
-        String userChatId = dispatchMessage.getUserChatId();
-        String remoteChatId = dispatchMessage.getRemoteChatId();
+        String remoteId = dispatchMessage.getRemoteId();
         String sessionKey = dispatchMessage.getSessionKey();
         Message message = dispatchMessage.getMessage();
 
         inboxService.updateGroupMsg(userId, sessionKey, message);
-        sendNewMsgToUser(userId, userChatId, remoteChatId, MessageType.Group);
+        sendNewMsgToUser(userId, remoteId, MessageType.Group);
         sendConsultPush(userId, message);
     }
 
-    private void sendNewMsgToUser(String userId, String userChatId, String remoteChatId, MessageType type) {
+    private void sendNewMsgToUser(String userId, String remoteId, MessageType type) {
         NewMessage newMessage = new NewMessage();
-        newMessage.userChatId = userChatId;
-        newMessage.remoteChatId = remoteChatId;
+
+        newMessage.userId = userId;
+        newMessage.remoteId = remoteId;
+
         newMessage.type = type.getValue();
 
         if (type == MessageType.Group) {
-            newMessage.groupChatId = remoteChatId;
+            newMessage.groupId = remoteId;
         }
 
         MonitorMeta meta = new MonitorMeta();

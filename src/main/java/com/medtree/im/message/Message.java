@@ -14,14 +14,6 @@ public class Message {
     @JSONField(name = "r_id")
     public long rId;
 
-    // 发送方 chat id
-    @JSONField(name = "from_chat_id")
-    public String fromChatId;
-
-    // 目的方 chat id
-    @JSONField(name = "to_chat_id")
-    public String toChatId;
-
     // 发送方 id
     @JSONField(name = "from_user_id")
     public String fromUserId;
@@ -29,10 +21,6 @@ public class Message {
     // 目的方 id
     @JSONField(name = "to_user_id")
     public String toUserId;
-
-    // 群组 chat id
-    @JSONField(name = "group_chat_id")
-    public String groupChatId;
 
     // 群组 id
     @JSONField(name = "group_id")
@@ -58,13 +46,11 @@ public class Message {
     @JSONField(name = "type")
     public int type;
 
-    public static Message convertToMsg(SessionMessageEntity dao, String userId, String userChatId, String remoteChatId) {
+    public static Message convertToMsg(SessionMessageEntity dao, String userId) {
         Message m = new Message();
         m.rId = dao.RId;
         m.fromUserId = Long.toString(dao.FromUserID);
-        m.fromChatId = StringUtils.equals(m.fromUserId, userId) ? userChatId : remoteChatId;
         m.toUserId = Long.toString(dao.ToUserID);
-        m.toChatId = StringUtils.equals(m.fromUserId, userId) ? remoteChatId : userChatId;
         m.msgId = dao.MsgID;
         m.mineType = dao.MineType;
         m.content = dao.Content;
@@ -74,13 +60,11 @@ public class Message {
         return m;
     }
 
-    public static Message convertToMsg(GroupMessageEntity dao, String fromUserId, String fromUserChatId, String groupId, String groupChatId) {
+    public static Message convertToMsg(GroupMessageEntity dao, String fromUserId, String groupId) {
         Message m = new Message();
         m.rId = dao.RId;
         m.fromUserId = fromUserId;
-        m.fromChatId = fromUserChatId;
         m.groupId = groupId;
-        m.groupChatId = groupChatId;
         m.msgId = dao.MsgID;
         m.mineType = dao.MineType;
         m.content = dao.Content;

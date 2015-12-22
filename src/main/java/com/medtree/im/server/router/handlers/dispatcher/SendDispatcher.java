@@ -23,12 +23,11 @@ public class SendDispatcher {
     private KafkaProducer<String, String> kafkaProducer;
 
     // dispatch to single user
-    public void dispatchToSingle(String userId, String userChatId, String remoteChatId, String sessionKey, MessageType type, Message msg) {
+    public void dispatchToSingle(String userId, String remoteId, String sessionKey, MessageType type, Message msg) {
         try {
             SendDispatchMessage message = new SendDispatchMessage();
             message.setUserId(userId);
-            message.setUserChatId(userChatId);
-            message.setRemoteChatId(remoteChatId);
+            message.setRemoteId(remoteId);
             message.setSessionKey(sessionKey);
             message.setMessage(msg);
             message.setType(type);

@@ -12,14 +12,14 @@ public class SendMsgResponse extends ByteCreator {
     @JSONField(name = "msg_r_id")
     public long msgRId;
 
-    @JSONField(name = "user_chat_id")
-    public String userChatId;
+    @JSONField(name = "user_id")
+    public String userId;
 
-    @JSONField(name = "remote_chat_id")
-    public String remoteChatId;
+    @JSONField(name = "remote_id")
+    public String remoteId;
 
-    @JSONField(name = "group_chat_id")
-    public String groupChatId;
+    @JSONField(name = "group_id")
+    public String groupId;
 
     @JSONField(name = "msg_id")
     public long msgId;

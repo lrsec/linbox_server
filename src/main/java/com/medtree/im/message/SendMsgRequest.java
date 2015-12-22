@@ -9,14 +9,14 @@ public class SendMsgRequest extends ByteCreator{
     @JSONField(name = "r_id")
     public long rId;
 
-    @JSONField(name = "user_chat_id")
-    public String userChatId;
+    @JSONField(name = "user_id")
+    public String userId;
 
-    @JSONField(name = "remote_chat_id")
-    public String remoteChatId;
+    @JSONField(name = "remote_id")
+    public String remoteId;
 
-    @JSONField(name = "group_chat_id")
-    public String groupChatId;
+    @JSONField(name = "group_id")
+    public String groupId;
 
     @JSONField(name = "msg")
     public Message msg;

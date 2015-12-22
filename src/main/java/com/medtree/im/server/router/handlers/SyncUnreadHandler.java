@@ -35,12 +35,6 @@ public class SyncUnreadHandler implements Handler<String, String> {
     private static Logger logger = LoggerFactory.getLogger(SyncUnreadHandler.class);
 
     @Autowired
-    private IUserDAO userDAO;
-
-    @Autowired
-    private IGroupDAO groupDAO;
-
-    @Autowired
     private IInboxService inboxService;
 
     @Autowired
@@ -68,7 +62,7 @@ public class SyncUnreadHandler implements Handler<String, String> {
                 return;
             }
 
-            String userId = userDAO.getUserId(request.userChatId);
+            String userId = request.userId;
             if(StringUtils.isBlank(userId)) {
                 logger.error("Can not find avaiable user id for SyncUnreadRequest {}", json);
                 return;
@@ -96,15 +90,15 @@ public class SyncUnreadHandler implements Handler<String, String> {
 
                     case Session:
 
-                        if(request.remoteChatId == null) {
+                        if(request.remoteId == null) {
                             logger.error("The remote chat id is null when getting session unread message for user {}", userId);
                             throw new IMException("The remote chat id is null when getting session unread message for user " + userId);
                         } else {
-                            String remoteId = userDAO.getUserId(request.remoteChatId);
+                            String remoteId = request.remoteId;
 
                             if (StringUtils.isBlank(remoteId)) {
                                 logger.error("Can not find remote id for SyncUnreadRequest {}", json);
-                                throw new IMException("Non existing remote_chat_id " + StringUtils.trimToEmpty(request.remoteChatId));
+                                throw new IMException("Non existing SyncUnreadRequest " + json);
                             }
 
                             unreadMsgs.add(inboxService.getSessionJson(userId, IMUtils.getSessionKey(userId, remoteId)));
@@ -114,16 +108,16 @@ public class SyncUnreadHandler implements Handler<String, String> {
 
                     case Group:
 
-                        if (request.groupChatId == null) {
+                        if (request.groupId == null) {
                             logger.error("The group id is null when getting group unread message for user {}", userId);
                             throw new IMException("The group id is null when getting group unread message for user " + userId);
                         } else {
-                            String groupId = groupDAO.getGroupId(request.groupChatId);
+                            String groupId = request.groupId;
 
                             if (StringUtils.isBlank(groupId)) {
                                 logger.error("Can not find group id for SyncUnreadRequest " + json);
 
-                                throw new IMException("Non existing group_chat_id " + StringUtils.trimToEmpty(request.groupChatId));
+                                throw new IMException("Non existing SyncUnreadRequest " + json);
                             }
 
                             unreadMsgs.add(inboxService.getGroupJson(userId, groupId));
@@ -168,9 +162,9 @@ public class SyncUnreadHandler implements Handler<String, String> {
 
         SyncUnreadResponse response = new SyncUnreadResponse();
         response.rId = request.rId;
-        response.userChatId = request.userChatId;
-        response.remoteChatId = request.remoteChatId;
-        response.groupChatId = request.groupChatId;
+        response.userId = request.userId;
+        response.remoteId = request.remoteId;
+        response.groupId = request.groupId;
         response.type = request.type;
         response.offset = nextOffset;
         response.unreads = msgs.toArray(new UnreadMsg[0]);
@@ -184,9 +178,9 @@ public class SyncUnreadHandler implements Handler<String, String> {
     private void sendFailResponse(String userId, SyncUnreadRequest request, String errMsg) {
         SyncUnreadResponse errResp = new SyncUnreadResponse();
         errResp.rId = request.rId;
-        errResp.userChatId = request.userChatId;
-        errResp.remoteChatId = request.remoteChatId;
-        errResp.groupChatId = request.groupChatId;
+        errResp.userId = request.userId;
+        errResp.remoteId = request.remoteId;
+        errResp.groupId = request.groupId;
         errResp.type = request.type;
         errResp.offset = 0;
         errResp.unreads = new UnreadMsg[0];

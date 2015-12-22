@@ -21,50 +21,6 @@ public class UserDAO implements IUserDAO {
     @Autowired
     private Sql2o sql2o;
 
-    public String getUserId(String userChatId) {
-        if (StringUtils.isBlank(userChatId)) {
-            logger.warn("Query user id for null or empty userChatId");
-            return null;
-        }
-
-        String sql = "select ID from mdt_account where ChatID = :chatId";
-
-        String userId = null;
-
-        try (Connection conn = sql2o.open()) {
-            Long id = conn.createQuery(sql)
-                    .addParameter("chatId", userChatId)
-                    .executeAndFetchFirst(Long.class);
-
-            if (id != null) {
-                userId = id.toString();
-            } else {
-                logger.error("Can not find corresponding user id for chat id: {}", userChatId);
-            }
-        }
-
-        return userId;
-    }
-
-    public String getUserChatId(String userId) {
-        if (StringUtils.isBlank(userId)) {
-            logger.warn("Query chat id for null or empty user Id");
-            return null;
-        }
-
-        String sql = "select ChatID from mdt_account where ID = :id";
-
-        String userChatId;
-
-        try (Connection conn = sql2o.open()) {
-            userChatId = conn.createQuery(sql)
-                    .addParameter("id", userId)
-                    .executeAndFetchFirst(String.class);
-        }
-
-        return userChatId;
-    }
-
     public String getUserName(String userId) {
         if (StringUtils.isBlank(userId)) {
             logger.warn("Query user name for null or empty user id");
@@ -83,5 +39,10 @@ public class UserDAO implements IUserDAO {
         }
 
         return Strings.nullToEmpty(realName);
+    }
+
+    @Override
+    public Boolean isUserValid(String userID, String token) {
+        return true;
     }
 }

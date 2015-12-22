@@ -34,12 +34,6 @@ public class SendMsgHandler implements Handler<String, String> {
     private static Logger logger = LoggerFactory.getLogger(SendMsgHandler.class);
 
     @Autowired
-    private IUserDAO userDAO;
-
-    @Autowired
-    private IGroupDAO groupDAO;
-
-    @Autowired
     private IIDService idService;
 
     @Autowired
@@ -76,7 +70,7 @@ public class SendMsgHandler implements Handler<String, String> {
                 return;
             }
 
-            String userId = userDAO.getUserId(request.userChatId);
+            String userId = request.userId;
             if(StringUtils.isBlank(userId)) {
                 logger.error("Can not find avaiable user id for SendMsgRequest {}", json);
                 return;
@@ -93,11 +87,11 @@ public class SendMsgHandler implements Handler<String, String> {
                 switch(type) {
                     case Session:
 
-                        String remoteId = userDAO.getUserId(request.remoteChatId);
+                        String remoteId = request.remoteId;
                         if (StringUtils.isBlank(remoteId)) {
                             logger.error("Can not find corresponding remote id for SendMsgRequest: {}", json);
 
-                            throw new IMException("Cannot find remote id for remote_chat_id: " + StringUtils.trimToEmpty(request.remoteChatId));
+                            throw new IMException("Cannot find remote id for SendMsgRequest: " + json);
                         }
 
                         Message body = request.msg;
@@ -117,7 +111,7 @@ public class SendMsgHandler implements Handler<String, String> {
 
                             logger.debug("Save SessionMessageDao into DB. Message: {}. Dao: {}", JSON.toJSONString(body), JSON.toJSONString(dao));
 
-                            dispatcher.dispatchToSingle(remoteId, request.remoteChatId, request.userChatId, sessionKey, MessageType.Session, body);
+                            dispatcher.dispatchToSingle(remoteId, userId, sessionKey, MessageType.Session, body);
 
                         } else {
                             logger.debug("Find existing SessionMessageDao for message: {}. Dao: {}", JSON.toJSONString(body), JSON.toJSONString(dao));
@@ -128,11 +122,11 @@ public class SendMsgHandler implements Handler<String, String> {
                         break;
                     case Group:
 
-                        String groupId = groupDAO.getGroupId(request.groupChatId);
+                        String groupId = request.groupId;
                         if (StringUtils.isBlank(groupId)) {
                             logger.error("Can not find corresponding group id for SendMsgRequest: {}", json);
 
-                            throw new IMException("Cannot find group id for group_chat_id: " + StringUtils.trimToEmpty(request.remoteChatId));
+                            throw new IMException("Cannot find group id for SendMsgRequest: " + json);
                         }
 
                         Message groupMsgBody = request.msg;
@@ -174,18 +168,18 @@ public class SendMsgHandler implements Handler<String, String> {
         }
     }
 
-    private void sendSuccessResponse(String userId, SendMsgRequest request, SessionMessageEntity dao, MonitorMeta meta) {
+    private void sendSuccessResponse(String userId, SendMsgRequest request, SessionMessageEntity sessionEntity, MonitorMeta meta) {
         long current = System.currentTimeMillis();
         meta.setDataComputeEnd(current);
 
         SendMsgResponse resp = new SendMsgResponse();
         resp.rId = request.rId;
-        resp.msgRId = dao.RId;
-        resp.userChatId = request.userChatId;
-        resp.remoteChatId = request.remoteChatId;
-        resp.groupChatId = request.groupChatId;
-        resp.msgId = dao.MsgID;
-        resp.sendTime = dao.SendTime;
+        resp.msgRId = sessionEntity.RId;
+        resp.userId = request.userId;
+        resp.remoteId = request.remoteId;
+        resp.groupId = request.groupId;
+        resp.msgId = sessionEntity.MsgID;
+        resp.sendTime = sessionEntity.SendTime;
         resp.type = request.type;
         resp.status = 200;
 
@@ -194,18 +188,18 @@ public class SendMsgHandler implements Handler<String, String> {
         consumerMonitorService.addSuccessTreat(RequestResponseType.SendMsgRequestMsg, meta);
     }
 
-    private void sendSuccessResponse(String userId, SendMsgRequest request, GroupMessageEntity dao, MonitorMeta meta) {
+    private void sendSuccessResponse(String userId, SendMsgRequest request, GroupMessageEntity groupEntity, MonitorMeta meta) {
         long current = System.currentTimeMillis();
         meta.setDataComputeEnd(current);
 
         SendMsgResponse resp = new SendMsgResponse();
         resp.rId = request.rId;
-        resp.msgRId = dao.RId;
-        resp.userChatId = request.userChatId;
-        resp.remoteChatId = request.remoteChatId;
-        resp.groupChatId = request.groupChatId;
-        resp.msgId = dao.MsgID;
-        resp.sendTime = dao.SendTime;
+        resp.msgRId = groupEntity.RId;
+        resp.userId = request.userId;
+        resp.remoteId = request.remoteId;
+        resp.groupId = request.groupId;
+        resp.msgId = groupEntity.MsgID;
+        resp.sendTime = groupEntity.SendTime;
         resp.type = request.type;
         resp.status = 200;
 
@@ -219,9 +213,9 @@ public class SendMsgHandler implements Handler<String, String> {
         SendMsgResponse errResp = new SendMsgResponse();
         errResp.rId = request.rId;
         errResp.msgRId = request.msg.rId;
-        errResp.userChatId = request.userChatId;
-        errResp.remoteChatId = request.remoteChatId;
-        errResp.groupChatId = request.groupChatId;
+        errResp.userId = request.userId;
+        errResp.remoteId = request.remoteId;
+        errResp.groupId = request.groupId;
         errResp.type = request.type;
         errResp.status = 500;
         errResp.errMsg = errMsg;

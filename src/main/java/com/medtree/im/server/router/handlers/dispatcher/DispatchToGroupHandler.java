@@ -7,7 +7,6 @@ import com.medtree.im.message.Message;
 import com.medtree.im.message.MessageType;
 import com.medtree.im.server.router.handlers.Handler;
 import com.medtree.im.server.storage.dao.IGroupDAO;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +29,6 @@ public class DispatchToGroupHandler implements Handler<String, String> {
 
     @Autowired
     private IGroupDAO groupDAO;
-
-    @Autowired
-    private IUserDAO userDAO;
 
     @Autowired
     private SendDispatcher dispatcher;
@@ -60,8 +56,7 @@ public class DispatchToGroupHandler implements Handler<String, String> {
                 service.submit(new Runnable() {
                     @Override
                     public void run() {
-                        String userChatId = userDAO.getUserChatId(userId);
-                        dispatcher.dispatchToSingle(userId, userChatId, groupId, groupId, MessageType.Group, groupMessage);
+                        dispatcher.dispatchToSingle(userId, groupId, groupId, MessageType.Group, groupMessage);
                     }
                 });
             }

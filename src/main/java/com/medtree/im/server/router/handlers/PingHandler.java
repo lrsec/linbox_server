@@ -27,9 +27,6 @@ public class PingHandler implements Handler<String, String> {
     private static Logger logger = LoggerFactory.getLogger(PingHandler.class);
 
     @Autowired
-    private IUserDAO userDAO;
-
-    @Autowired
     private IOutboxService outboxService;
 
     @Autowired
@@ -50,7 +47,7 @@ public class PingHandler implements Handler<String, String> {
             Ping ping = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), Ping.class);
             wrapper.content = ping;
 
-            String userId = userDAO.getUserId(ping.userChatId);
+            String userId = ping.userId;
             if(StringUtils.isBlank(userId)) {
                 logger.error("Can not find avaiable user id for PullOldMsgRequest {}", json);
                 return;

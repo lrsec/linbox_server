@@ -11,6 +11,6 @@ public class Ping extends ByteCreator{
     public long rId;
 
     // user chat id
-    @JSONField(name="user_chat_id")
-    public String userChatId;
+    @JSONField(name="user_id")
+    public String userId;
 }

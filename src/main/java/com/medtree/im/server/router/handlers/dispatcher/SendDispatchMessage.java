@@ -9,8 +9,7 @@ import com.medtree.im.message.MessageType;
 public class SendDispatchMessage {
 
     private String userId;
-    private String userChatId;
-    private String remoteChatId;
+    private String remoteId;
     private String sessionKey;
     private Message message;
     private MessageType type;
@@ -23,20 +22,12 @@ public class SendDispatchMessage {
         this.userId = userId;
     }
 
-    public String getUserChatId() {
-        return userChatId;
+    public String getRemoteId() {
+        return remoteId;
     }
 
-    public void setUserChatId(String userChatId) {
-        this.userChatId = userChatId;
-    }
-
-    public String getRemoteChatId() {
-        return remoteChatId;
-    }
-
-    public void setRemoteChatId(String remoteChatId) {
-        this.remoteChatId = remoteChatId;
+    public void setRemoteId(String remoteId) {
+        this.remoteId = remoteId;
     }
 
     public String getSessionKey() {

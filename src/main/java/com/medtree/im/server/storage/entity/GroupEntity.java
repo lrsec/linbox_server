@@ -6,8 +6,6 @@ package com.medtree.im.server.storage.entity;
 public class GroupEntity {
     public long GroupId;
 
-    public String GroupChatId;
-
     public String GroupName;
 
     public long Creator;
