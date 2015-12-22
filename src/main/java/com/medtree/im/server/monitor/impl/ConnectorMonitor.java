@@ -55,6 +55,6 @@ public class ConnectorMonitor implements IConnectorMonitor {
     }
 
     private void sendConnCount(long count) {
-        logger.info("Current Total Connection Count: {}", count);
+        logger.info("IM Monitor: Current Total Connection Count: {}", count);
     }
 }

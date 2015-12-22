@@ -24,12 +24,10 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
     private String userId = null;
 
     private IConnectorMonitor connectorMonitorService;
-    private IUserDAO userDAO;
     private KafkaProducer<String,String> kafkaProducer;
 
     public IMMessageHandler(ClassPathXmlApplicationContext appContext) {
         connectorMonitorService = (IConnectorMonitor)appContext.getBean("connectorMonitor");
-        userDAO = (IUserDAO)appContext.getBean("userDAO");
         kafkaProducer = (KafkaProducer)appContext.getBean("kafkaProducer");
     }
 
