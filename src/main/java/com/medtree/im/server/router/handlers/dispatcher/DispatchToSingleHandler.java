@@ -6,7 +6,6 @@ import com.medtree.im.exceptions.IMException;
 import com.medtree.im.message.Message;
 import com.medtree.im.message.MessageType;
 import com.medtree.im.message.NewMessage;
-import com.medtree.im.server.monitor.MonitorMeta;
 import com.medtree.im.server.router.handlers.Handler;
 import com.medtree.im.server.service.IInboxService;
 import com.medtree.im.server.service.IOutboxService;
@@ -96,8 +95,7 @@ public class DispatchToSingleHandler implements Handler<String, String> {
             newMessage.groupId = remoteId;
         }
 
-        MonitorMeta meta = new MonitorMeta();
-        outboxService.put(userId, newMessage.toWrapperJson(meta));
+        outboxService.put(userId, newMessage.toWrapperJson());
     }
 
     private void sendPush(Message message) {

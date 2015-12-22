@@ -34,9 +34,6 @@ public class IMMessageEncoder extends MessageToByteEncoder<MessageWrapper> {
 
             long encodeEnd = System.currentTimeMillis();
 
-            messageWrapper.monitorMeta.setAesEncryptStart(encodeStart);
-            messageWrapper.monitorMeta.setAesEncryptEnd(encodeEnd);
-
             byteBuf.writeShort(CURRENT_VERISON);
             byteBuf.writeShort(type.getValue());
             byteBuf.writeInt(content.length);

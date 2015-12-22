@@ -6,10 +6,7 @@ import com.medtree.im.exceptions.IMConsumerException;
 import com.medtree.im.message.MessageWrapper;
 import com.medtree.im.message.Ping;
 import com.medtree.im.message.Pong;
-import com.medtree.im.server.monitor.MonitorMeta;
-import com.medtree.im.server.service.IConsumerMonitorService;
 import com.medtree.im.server.service.IOutboxService;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -29,20 +26,15 @@ public class PingHandler implements Handler<String, String> {
     @Autowired
     private IOutboxService outboxService;
 
-    @Autowired
-    private IConsumerMonitorService consumerMonitorService;
 
     @Override
     public void handle(ConsumerRecord<String, String> record) {
-        long nsqEndTime = System.currentTimeMillis();
         String json = record.value();
 
         try {
             logger.debug("Start handling Ping: {}", json);
 
             MessageWrapper wrapper = JSON.parseObject(json, MessageWrapper.class);
-
-            wrapper.monitorMeta.setNsqEnd(nsqEndTime);
 
             Ping ping = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), Ping.class);
             wrapper.content = ping;
@@ -60,14 +52,8 @@ public class PingHandler implements Handler<String, String> {
     }
 
     private void sendPong(String userId, MessageWrapper wrapper) {
-        long current = System.currentTimeMillis();
-        MonitorMeta meta = wrapper.monitorMeta;
-        meta.setDataComputeEnd(current);
-
         Pong pong = new Pong();
         pong.rId = ((Ping)(wrapper.content)).rId;
-        outboxService.put(userId, pong.toWrapperJson(wrapper.monitorMeta));
-
-        consumerMonitorService.addSuccessTreat(wrapper.type, wrapper.monitorMeta);
+        outboxService.put(userId, pong.toWrapperJson());
     }
 }

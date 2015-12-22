@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.medtree.im.message.*;
 import com.medtree.im.server.connector.tcp.constant.HandlerName;
 import com.medtree.im.server.constant.RedisKey;
-import com.medtree.im.server.monitor.MonitorMeta;
-import com.medtree.im.server.service.IConsumerMonitorService;
 import com.medtree.im.server.service.IOutboxService;
 import com.medtree.im.server.storage.dao.IUserDAO;
 import io.netty.channel.Channel;
@@ -44,7 +42,6 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     private JedisPool jedisPool;
     private IOutboxService outboxService;
-    private IConsumerMonitorService consumerMonitorService;
     private IUserDAO userDAO;
 
     public AuthHandler(ClassPathXmlApplicationContext applicationContext, ScheduledExecutorService executor, int loopRatio, int maxHandleTimeInMills, AES aes) {
@@ -54,7 +51,6 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         this.aes = aes;
         this.jedisPool = (JedisPool)applicationContext.getBean("jedisPool");
         this.outboxService = (IOutboxService)applicationContext.getBean("outboxService");
-        this.consumerMonitorService = (IConsumerMonitorService)applicationContext.getBean("consumerMonitorService");
         this.userDAO = (IUserDAO) applicationContext.getBean("userDAO");
     }
 
@@ -174,8 +170,6 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
                     final MessageWrapper wrapper = JSON.parseObject(msg, MessageWrapper.class);
 
-                    wrapper.monitorMeta.setTcpSendStart(System.currentTimeMillis());
-
                     ChannelFuture future = ch.writeAndFlush(wrapper);
 
                     logger.debug("Tcp sender send message for {}. Message type: {}. Message body: {}", userId, wrapper.type, msg);
@@ -191,9 +185,6 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                                     logger.info("Send message fail", t);
                                 }
                             } else {
-                                wrapper.monitorMeta.setTcpSendEnd(System.currentTimeMillis());
-                                consumerMonitorService.addSuccessTreat(wrapper.type, wrapper.monitorMeta);
-
                                 logger.debug("Tcp sender send message success. user: {}. Message type: {}. Message body: {}", userId, wrapper.type, msg);
                             }
                         }
@@ -247,31 +238,23 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             OfflineInfo offlineInfo = new OfflineInfo();
             offlineInfo.userId = userId;
 
-            MonitorMeta meta = new MonitorMeta();
-            MessageWrapper wrapper = offlineInfo.toWrapper(meta);
+            MessageWrapper wrapper = offlineInfo.toWrapper();
             ch.writeAndFlush(wrapper);
         }
     }
 
     private void sendSuccessResponse(ChannelHandlerContext ctx, MessageWrapper wrapper) {
-        MonitorMeta meta = wrapper.monitorMeta;
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
-
-        consumerMonitorService.addSuccessTreat(wrapper.type, meta);
-
         AuthResponse response = new AuthResponse();
         response.rId = rId;
         response.userId = userId;
         response.status = 200;
         response.sendTime = System.currentTimeMillis();
 
-        MessageWrapper responseWrapper = response.toWrapper(meta);
+        MessageWrapper responseWrapper = response.toWrapper();
         ctx.channel().writeAndFlush(responseWrapper);
     }
 
     private void sendFailResponse(ChannelHandlerContext ctx, int status, String errCode) {
-        consumerMonitorService.addFailCount(RequestResponseType.AuthRequestMsg);
 
         AuthResponse response = new AuthResponse();
         response.rId = rId;
@@ -280,8 +263,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         response.errMsg = errCode;
         response.sendTime = System.currentTimeMillis();
 
-        MonitorMeta meta = new MonitorMeta();
-        MessageWrapper responseWrapper = response.toWrapper(meta);
+        MessageWrapper responseWrapper = response.toWrapper();
         ctx.channel().writeAndFlush(responseWrapper);
     }
 }

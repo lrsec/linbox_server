@@ -10,11 +10,8 @@ import com.medtree.im.message.SendMsgRequest;
 import com.medtree.im.message.system.SystemMessage;
 import com.medtree.im.server.constant.MessageTopic;
 import com.medtree.im.server.constant.RedisKey;
-import com.medtree.im.server.monitor.MonitorMeta;
 import com.medtree.im.server.service.IIDService;
 import com.medtree.im.server.service.IOutboxService;
-import com.medtree.im.server.storage.dao.IGroupDAO;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import com.medtree.im.utils.AESUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -132,8 +129,7 @@ public class IMService implements IIMService {
         request.msg = msg;
         request.type = messageType;
 
-        MonitorMeta meta = new MonitorMeta();
-        MessageWrapper wrapper = request.toWrapper(meta);
+        MessageWrapper wrapper = request.toWrapper();
 
         String json = JSON.toJSONString(wrapper);
 
@@ -156,7 +152,6 @@ public class IMService implements IIMService {
         systemMessage.systemType = systemType;
         systemMessage.content = content;
 
-        MonitorMeta meta = new MonitorMeta();
-        outboxService.put(targetUserId, systemMessage.toWrapperJson(meta));
+        outboxService.put(targetUserId, systemMessage.toWrapperJson());
     }
 }

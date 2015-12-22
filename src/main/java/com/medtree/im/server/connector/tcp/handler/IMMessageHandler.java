@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.medtree.im.message.*;
 import com.medtree.im.message.system.SyncSystemUnreadRequest;
 import com.medtree.im.server.constant.MessageTopic;
-import com.medtree.im.server.service.IConnectorMonitorService;
+import com.medtree.im.server.monitor.IConnectorMonitor;
 import com.medtree.im.server.storage.dao.IUserDAO;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -23,12 +23,12 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
     private static Logger logger = LoggerFactory.getLogger(IMMessageHandler.class);
     private String userId = null;
 
-    private IConnectorMonitorService connectorMonitorService;
+    private IConnectorMonitor connectorMonitorService;
     private IUserDAO userDAO;
     private KafkaProducer<String,String> kafkaProducer;
 
     public IMMessageHandler(ClassPathXmlApplicationContext appContext) {
-        connectorMonitorService = (IConnectorMonitorService)appContext.getBean("connectorMonitorService");
+        connectorMonitorService = (IConnectorMonitor)appContext.getBean("connectorMonitor");
         userDAO = (IUserDAO)appContext.getBean("userDAO");
         kafkaProducer = (KafkaProducer)appContext.getBean("kafkaProducer");
     }
@@ -58,9 +58,6 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
             logger.error("Illegal message type for user: {}. Message type: {}", userId, msg.getClass().getName());
             return;
         }
-
-        long nsqStartTime = System.currentTimeMillis();
-        wrapper.monitorMeta.setNsqStart(nsqStartTime);
 
         String json = JSON.toJSONString(wrapper);
 

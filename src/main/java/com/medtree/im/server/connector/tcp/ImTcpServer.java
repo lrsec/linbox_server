@@ -1,6 +1,7 @@
 package com.medtree.im.server.connector.tcp;
 
 import com.medtree.im.server.connector.tcp.handler.IMChannelInitializer;
+import com.medtree.im.server.monitor.IConnectorMonitor;
 import com.medtree.im.server.service.IServerService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.concurrent.Executors;
@@ -75,6 +75,9 @@ public class ImTcpServer {
         try {
             ImTcpServer server = (ImTcpServer)appContext.getBean("imTcpServer");
             server.run();
+
+            IConnectorMonitor connectorMonitorService = (IConnectorMonitor) appContext.getBean("connectorMonitor");
+            connectorMonitorService.start();
         } catch (Exception e) {
             logger.error("Exception in starting ImTcpServer", e);
         }

@@ -5,13 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.medtree.im.exceptions.IMConsumerException;
 import com.medtree.im.exceptions.IMException;
 import com.medtree.im.message.*;
-import com.medtree.im.server.monitor.MonitorMeta;
-import com.medtree.im.server.service.IConsumerMonitorService;
 import com.medtree.im.server.service.IInboxService;
 import com.medtree.im.server.service.IOutboxService;
 import com.medtree.im.server.storage.UnreadLoopData;
-import com.medtree.im.server.storage.dao.IGroupDAO;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import com.medtree.im.utils.IMUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -40,19 +36,14 @@ public class SyncUnreadHandler implements Handler<String, String> {
     @Autowired
     private IOutboxService outboxService;
 
-    @Autowired
-    private IConsumerMonitorService consumerMonitorService;
-
     @Override
     public void handle(ConsumerRecord<String, String> record) {
-        long nsqEndTime = System.currentTimeMillis();
         String json = record.value();
         
         try {
             logger.debug("Start handling SyncUnreadRequest: {}", json);
 
             MessageWrapper wrapper = JSON.parseObject(json, MessageWrapper.class);
-            wrapper.monitorMeta.setNsqEnd(nsqEndTime);
 
             SyncUnreadRequest request = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), SyncUnreadRequest.class);
             wrapper.content = request;
@@ -129,7 +120,7 @@ public class SyncUnreadHandler implements Handler<String, String> {
                         throw new IMException("Unhandled MessageType " + type.getValue() + " for SyncUnreadCallback");
                 }
 
-                sendSuccessResponse(userId, request, unreadMsgs, nextOffset, wrapper.monitorMeta);
+                sendSuccessResponse(userId, request, unreadMsgs, nextOffset);
 
             } catch(Exception e) {
                 logger.error("Exception when handling SyncUnreadCallback.", e);
@@ -138,15 +129,11 @@ public class SyncUnreadHandler implements Handler<String, String> {
             }
 
         } catch (Exception e) {
-            consumerMonitorService.addFailCount(RequestResponseType.SyncUnreadRequestMsg);
             throw new IMConsumerException(e, json);
         }
     }
-    
-    private void sendSuccessResponse(String userId, SyncUnreadRequest request, List<String> result, long nextOffset, MonitorMeta meta) {
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
 
+    private void sendSuccessResponse(String userId, SyncUnreadRequest request, List<String> result, long nextOffset) {
         List<UnreadMsg> msgs = new ArrayList<>(result.size());
 
         for (String r : result) {
@@ -170,9 +157,7 @@ public class SyncUnreadHandler implements Handler<String, String> {
         response.unreads = msgs.toArray(new UnreadMsg[0]);
         response.status = 200;
 
-        outboxService.put(userId, response.toWrapperJson(meta));
-
-        consumerMonitorService.addSuccessTreat(RequestResponseType.SyncUnreadRequestMsg, meta);
+        outboxService.put(userId, response.toWrapperJson());
     }
 
     private void sendFailResponse(String userId, SyncUnreadRequest request, String errMsg) {
@@ -187,9 +172,6 @@ public class SyncUnreadHandler implements Handler<String, String> {
         errResp.status = 500;
         errResp.errMsg = errMsg;
 
-        MonitorMeta meta = new MonitorMeta();
-        outboxService.put(userId, errResp.toWrapperJson(meta));
-
-        consumerMonitorService.addFailCount(RequestResponseType.SyncUnreadRequestMsg);
+        outboxService.put(userId, errResp.toWrapperJson());
     }
 }

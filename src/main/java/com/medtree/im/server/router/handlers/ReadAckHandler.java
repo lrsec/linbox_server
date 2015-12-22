@@ -4,13 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.medtree.im.exceptions.IMConsumerException;
 import com.medtree.im.exceptions.IMException;
-import com.medtree.im.message.*;
-import com.medtree.im.server.monitor.MonitorMeta;
-import com.medtree.im.server.service.IConsumerMonitorService;
+import com.medtree.im.message.MessageType;
+import com.medtree.im.message.MessageWrapper;
+import com.medtree.im.message.ReadAckRequest;
+import com.medtree.im.message.ReadAckResponse;
 import com.medtree.im.server.service.IInboxService;
 import com.medtree.im.server.service.IOutboxService;
-import com.medtree.im.server.storage.dao.IGroupDAO;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import com.medtree.im.utils.IMUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -29,9 +28,6 @@ public class ReadAckHandler implements Handler<String, String> {
     private static Logger logger = LoggerFactory.getLogger(ReadAckHandler.class);
 
     @Autowired
-    private IConsumerMonitorService consumerMonitorService;
-
-    @Autowired
     private IInboxService inboxService;
 
     @Autowired
@@ -39,14 +35,12 @@ public class ReadAckHandler implements Handler<String, String> {
 
     @Override
     public void handle(ConsumerRecord<String, String> record) {
-        long nsqEndTime = System.currentTimeMillis();
         String json = record.value();
 
         try {
             logger.debug("Start handling ReadAckRequest: {}", json);
 
             MessageWrapper wrapper = JSON.parseObject(json, MessageWrapper.class);
-            wrapper.monitorMeta.setNsqEnd(nsqEndTime);
 
             ReadAckRequest request = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), ReadAckRequest.class);
             wrapper.content = request;
@@ -77,7 +71,7 @@ public class ReadAckHandler implements Handler<String, String> {
 
                         inboxService.removeSessionMsg(userId, IMUtils.getSessionKey(userId, remoteId), request.msgId);
 
-                        sendSuccessResponse(userId, request, wrapper.monitorMeta);
+                        sendSuccessResponse(userId, request);
 
                         break;
                     case Group:
@@ -91,7 +85,7 @@ public class ReadAckHandler implements Handler<String, String> {
 
                         inboxService.removeGroupMsg(userId, groupId, request.msgId);
 
-                        sendSuccessResponse(userId, request, wrapper.monitorMeta);
+                        sendSuccessResponse(userId, request);
 
                         break;
                     default:
@@ -106,14 +100,11 @@ public class ReadAckHandler implements Handler<String, String> {
             }
 
         } catch (Exception e) {
-            consumerMonitorService.addFailCount(RequestResponseType.ReadAckRequestMsg);
             throw new IMConsumerException(e, json);
         }
     }
 
-    private void sendSuccessResponse(String userId, ReadAckRequest request, MonitorMeta meta) {
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
+    private void sendSuccessResponse(String userId, ReadAckRequest request) {
 
         ReadAckResponse response = new ReadAckResponse();
         response.rId = request.rId;
@@ -123,13 +114,10 @@ public class ReadAckHandler implements Handler<String, String> {
         response.type = request.type;
         response.status = 200;
 
-        outboxService.put(userId, response.toWrapperJson(meta));
-
-        consumerMonitorService.addSuccessTreat(RequestResponseType.ReadAckRequestMsg, meta);
+        outboxService.put(userId, response.toWrapperJson());
     }
 
     private void sendFailResponse(String userId, ReadAckRequest request, String errMsg) {
-        MonitorMeta meta = new MonitorMeta();
 
         ReadAckResponse response = new ReadAckResponse();
         response.rId = request.rId;
@@ -140,8 +128,6 @@ public class ReadAckHandler implements Handler<String, String> {
         response.status = 500;
         response.errCode = errMsg;
 
-        outboxService.put(userId, response.toWrapperJson(meta));
-
-        consumerMonitorService.addFailCount(RequestResponseType.ReadAckRequestMsg);
+        outboxService.put(userId, response.toWrapperJson());
     }
 }

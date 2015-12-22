@@ -2,7 +2,6 @@ package com.medtree.im.message;
 
 import com.alibaba.fastjson.JSON;
 import com.medtree.im.exceptions.IMException;
-import com.medtree.im.server.monitor.MonitorMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class ByteCreator {
     private static Logger logger = LoggerFactory.getLogger(ByteCreator.class);
 
-    public MessageWrapper toWrapper(MonitorMeta meta) {
+    public MessageWrapper toWrapper() {
         MessageWrapper wrapper = new MessageWrapper();
 
         RequestResponseType type = RequestResponseType.parse(this);
@@ -25,13 +24,12 @@ public class ByteCreator {
         }
 
         wrapper.type = type;
-        wrapper.monitorMeta = meta;
         wrapper.content = this;
 
         return wrapper;
     }
 
-    public String toWrapperJson(MonitorMeta meta) {
-        return JSON.toJSONString(toWrapper(meta));
+    public String toWrapperJson() {
+        return JSON.toJSONString(toWrapper());
     }
 }

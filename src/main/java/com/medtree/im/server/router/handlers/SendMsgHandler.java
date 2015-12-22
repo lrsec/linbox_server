@@ -5,15 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.medtree.im.exceptions.IMConsumerException;
 import com.medtree.im.exceptions.IMException;
 import com.medtree.im.message.*;
-import com.medtree.im.server.monitor.MonitorMeta;
 import com.medtree.im.server.router.handlers.dispatcher.SendDispatcher;
-import com.medtree.im.server.service.IConsumerMonitorService;
 import com.medtree.im.server.service.IIDService;
 import com.medtree.im.server.service.IOutboxService;
-import com.medtree.im.server.storage.dao.IGroupDAO;
 import com.medtree.im.server.storage.dao.IGroupMessageDAO;
 import com.medtree.im.server.storage.dao.ISessionMessageDAO;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import com.medtree.im.server.storage.entity.GroupMessageEntity;
 import com.medtree.im.server.storage.entity.SessionMessageEntity;
 import com.medtree.im.utils.IMUtils;
@@ -43,9 +39,6 @@ public class SendMsgHandler implements Handler<String, String> {
     private IGroupMessageDAO groupMessageDAO;
 
     @Autowired
-    private IConsumerMonitorService consumerMonitorService;
-
-    @Autowired
     private IOutboxService outboxService;
 
     @Autowired
@@ -53,14 +46,12 @@ public class SendMsgHandler implements Handler<String, String> {
 
     @Override
     public void handle(ConsumerRecord<String, String> record) {
-        long nsqEndTime = System.currentTimeMillis();
         String json = record.value();
 
         try {
             logger.debug("Start handling SendMsgRequest: {}", json);
 
             MessageWrapper wrapper = JSON.parseObject(json, MessageWrapper.class);
-            wrapper.monitorMeta.setNsqEnd(nsqEndTime);
 
             SendMsgRequest request = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), SendMsgRequest.class);
             wrapper.content = request;
@@ -117,7 +108,7 @@ public class SendMsgHandler implements Handler<String, String> {
                             logger.debug("Find existing SessionMessageDao for message: {}. Dao: {}", JSON.toJSONString(body), JSON.toJSONString(dao));
                         }
 
-                        sendSuccessResponse(userId, request, dao, wrapper.monitorMeta);
+                        sendSuccessResponse(userId, request, dao);
 
                         break;
                     case Group:
@@ -150,7 +141,7 @@ public class SendMsgHandler implements Handler<String, String> {
                             logger.debug("Find existing GroupMessageDao for message: {}. Dao: {}", JSON.toJSONString(groupMsgBody), JSON.toJSONString(groupMsgDao));
                         }
 
-                        sendSuccessResponse(userId, request, groupMsgDao, wrapper.monitorMeta);
+                        sendSuccessResponse(userId, request, groupMsgDao);
 
                         break;
                     default:
@@ -163,15 +154,11 @@ public class SendMsgHandler implements Handler<String, String> {
             }
 
         } catch (Exception e) {
-            consumerMonitorService.addFailCount(RequestResponseType.SendMsgRequestMsg);
             throw new IMConsumerException(e, json);
         }
     }
 
-    private void sendSuccessResponse(String userId, SendMsgRequest request, SessionMessageEntity sessionEntity, MonitorMeta meta) {
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
-
+    private void sendSuccessResponse(String userId, SendMsgRequest request, SessionMessageEntity sessionEntity) {
         SendMsgResponse resp = new SendMsgResponse();
         resp.rId = request.rId;
         resp.msgRId = sessionEntity.RId;
@@ -183,15 +170,10 @@ public class SendMsgHandler implements Handler<String, String> {
         resp.type = request.type;
         resp.status = 200;
 
-        outboxService.put(userId, resp.toWrapperJson(meta));
-
-        consumerMonitorService.addSuccessTreat(RequestResponseType.SendMsgRequestMsg, meta);
+        outboxService.put(userId, resp.toWrapperJson());
     }
 
-    private void sendSuccessResponse(String userId, SendMsgRequest request, GroupMessageEntity groupEntity, MonitorMeta meta) {
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
-
+    private void sendSuccessResponse(String userId, SendMsgRequest request, GroupMessageEntity groupEntity) {
         SendMsgResponse resp = new SendMsgResponse();
         resp.rId = request.rId;
         resp.msgRId = groupEntity.RId;
@@ -203,9 +185,7 @@ public class SendMsgHandler implements Handler<String, String> {
         resp.type = request.type;
         resp.status = 200;
 
-        outboxService.put(userId, resp.toWrapperJson(meta));
-
-        consumerMonitorService.addSuccessTreat(RequestResponseType.SendMsgRequestMsg, meta);
+        outboxService.put(userId, resp.toWrapperJson());
     }
 
     private void sendFailResponse(String userId, SendMsgRequest request, String errMsg) {
@@ -220,10 +200,7 @@ public class SendMsgHandler implements Handler<String, String> {
         errResp.status = 500;
         errResp.errMsg = errMsg;
 
-        MonitorMeta meta = new MonitorMeta();
-        outboxService.put(userId, errResp.toWrapperJson(meta));
-
-        consumerMonitorService.addFailCount(RequestResponseType.SendMsgRequestMsg);
+        outboxService.put(userId, errResp.toWrapperJson());
     }
 
 

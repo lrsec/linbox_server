@@ -11,8 +11,6 @@ import com.medtree.im.message.system.SystemMessage;
 import com.medtree.im.message.system.SystemMessageTypes;
 import com.medtree.im.message.system.content.SystemUnreadContent;
 import com.medtree.im.server.constant.RedisKey;
-import com.medtree.im.server.monitor.MonitorMeta;
-import com.medtree.im.server.service.IConsumerMonitorService;
 import com.medtree.im.server.service.IOutboxService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -38,21 +36,16 @@ public class SyncSystemUnreadHandler implements Handler<String, String> {
     private JedisPool jedisPool;
 
     @Autowired
-    private IConsumerMonitorService consumerMonitorService;
-
-    @Autowired
     private IOutboxService outboxService;
 
     @Override
     public void handle(ConsumerRecord<String, String> record) {
-        long nsqEndTime = System.currentTimeMillis();
         String json = record.value();
         
         try {
             logger.debug("Start handling SyncSystemUnreadRequest: {}", json);
 
             MessageWrapper wrapper = JSON.parseObject(json, MessageWrapper.class);
-            wrapper.monitorMeta.setNsqEnd(nsqEndTime);
 
             SyncSystemUnreadRequest request = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), SyncSystemUnreadRequest.class);
             wrapper.content = request;
@@ -89,21 +82,18 @@ public class SyncSystemUnreadHandler implements Handler<String, String> {
                 newMessages.content = JSON.toJSONString(newMessageContent);
                 messages.add(newMessages);
 
-                sendSuccessResponse(userId, messages, wrapper.monitorMeta, request.rId );
+                sendSuccessResponse(userId, messages, request.rId );
             } catch (Exception e) {
                 logger.error("Exception in SyncSystemUnreadCallback", e);
 
                 sendFailResponse(userId, e.toString(), request.rId);
             }
         } catch (Exception e) {
-            consumerMonitorService.addFailCount(RequestResponseType.SyncSystemUnreadRequestMsg);
             throw new IMConsumerException(e, json);
         }
     }
 
-    private void sendSuccessResponse(String userId, List<SystemMessage> messages, MonitorMeta meta, long rid) {
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
+    private void sendSuccessResponse(String userId, List<SystemMessage> messages, long rid) {
 
         SyncSystemUnreadResponse response = new SyncSystemUnreadResponse();
         response.status = 200;
@@ -112,9 +102,7 @@ public class SyncSystemUnreadHandler implements Handler<String, String> {
         response.rId = rid;
         response.unreads = messages.toArray(new SystemMessage[0]);
 
-        outboxService.put(userId, response.toWrapperJson(meta));
-
-        consumerMonitorService.addSuccessTreat(RequestResponseType.SyncSystemUnreadRequestMsg, meta);
+        outboxService.put(userId, response.toWrapperJson());
     }
 
     private void sendFailResponse(String userId, String errMsg, long rid) {
@@ -125,9 +113,6 @@ public class SyncSystemUnreadHandler implements Handler<String, String> {
         response.rId = rid;
         response.unreads = new SystemMessage[0];
 
-        MonitorMeta meta = new MonitorMeta();
-        outboxService.put(userId, response.toWrapperJson(meta));
-
-        consumerMonitorService.addFailCount(RequestResponseType.SyncSystemUnreadRequestMsg);
+        outboxService.put(userId, response.toWrapperJson());
     }
 }

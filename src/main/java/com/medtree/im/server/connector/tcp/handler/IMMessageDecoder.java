@@ -3,7 +3,6 @@ package com.medtree.im.server.connector.tcp.handler;
 import com.alibaba.fastjson.JSON;
 import com.medtree.im.message.MessageWrapper;
 import com.medtree.im.message.RequestResponseType;
-import com.medtree.im.server.monitor.MonitorMeta;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -100,13 +99,7 @@ public class IMMessageDecoder extends ByteToMessageDecoder{
                         } else {
                             logger.debug("Request type: {}. Content Length: {}. Request: {}", requestResponseType.getName(), contentSize, new String(buf));
 
-                            MonitorMeta monitorMeta = new MonitorMeta();
-                            monitorMeta.setStart(startTime);
-                            monitorMeta.setAesDecryptStart(startTime);
-                            monitorMeta.setAesDecryptEnd(decryptEndTime);
-
                             MessageWrapper wrapper = new MessageWrapper();
-                            wrapper.monitorMeta = monitorMeta;
                             wrapper.type = requestResponseType;
                             wrapper.content = message;
 

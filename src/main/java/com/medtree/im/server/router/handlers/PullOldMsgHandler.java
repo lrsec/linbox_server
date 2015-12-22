@@ -5,14 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.medtree.im.exceptions.IMConsumerException;
 import com.medtree.im.exceptions.IMException;
 import com.medtree.im.message.*;
-import com.medtree.im.server.monitor.MonitorMeta;
-import com.medtree.im.server.service.IConsumerMonitorService;
 import com.medtree.im.server.service.IInboxService;
 import com.medtree.im.server.service.IOutboxService;
 import com.medtree.im.server.storage.dao.IGroupDAO;
 import com.medtree.im.server.storage.dao.IGroupMessageDAO;
 import com.medtree.im.server.storage.dao.ISessionMessageDAO;
-import com.medtree.im.server.storage.dao.IUserDAO;
 import com.medtree.im.server.storage.entity.GroupMessageEntity;
 import com.medtree.im.server.storage.entity.SessionMessageEntity;
 import com.medtree.im.utils.IMUtils;
@@ -39,9 +36,6 @@ public class PullOldMsgHandler implements Handler<String, String> {
     private IOutboxService outboxService;
 
     @Autowired
-    private IConsumerMonitorService consumerMonitorService;
-
-    @Autowired
     private ISessionMessageDAO sessionMessageDAO;
 
     @Autowired
@@ -55,13 +49,11 @@ public class PullOldMsgHandler implements Handler<String, String> {
 
     @Override
     public void handle(ConsumerRecord<String, String> record) {
-        long nsqEndTime = System.currentTimeMillis();
         String json = record.value();
 
         try {
             logger.debug("start handling PullOldMsgRequest: {}", json);
             MessageWrapper wrapper = JSON.parseObject(json, MessageWrapper.class);
-            wrapper.monitorMeta.setNsqEnd(nsqEndTime);
 
             PullOldMsgRequest request = JSON.parseObject(((JSONObject)wrapper.content).toJSONString(), PullOldMsgRequest.class);
             wrapper.content = request;
@@ -144,22 +136,18 @@ public class PullOldMsgHandler implements Handler<String, String> {
                         throw new IMException("Unhandled MessageType " + type.getValue() + " for PullOldMsgCallback");
                 }
 
-                sendSuccessResponse(userId, request, msgs, wrapper.monitorMeta);
+                sendSuccessResponse(userId, request, msgs);
 
             } catch (Exception e) {
                 logger.error("Pull old message handler fail with exception. Send fail response. Message: " + json, e);
                 sendFailResponse(userId, request, e.getMessage());
             }
         } catch (Exception e) {
-            consumerMonitorService.addFailCount(RequestResponseType.PullOldMsgRequestMsg);
             throw new IMConsumerException(e, json);
         }
     }
 
-    private void sendSuccessResponse(String userId, PullOldMsgRequest request, List<Message> result, MonitorMeta meta) {
-        long current = System.currentTimeMillis();
-        meta.setDataComputeEnd(current);
-
+    private void sendSuccessResponse(String userId, PullOldMsgRequest request, List<Message> result) {
         PullOldMsgResponse response = new PullOldMsgResponse();
         response.rId = request.rId;
         response.userId = request.userId;
@@ -170,14 +158,10 @@ public class PullOldMsgHandler implements Handler<String, String> {
         response.maxMsgIdInRequest = (request.maxMsgId == Long.MAX_VALUE) ? -1 : request.maxMsgId;
         response.requestType = request.requestType;
         response.status = 200;
-        outboxService.put(userId, response.toWrapperJson(meta));
-
-        consumerMonitorService.addSuccessTreat(RequestResponseType.PullOldMsgRequestMsg, meta);
+        outboxService.put(userId, response.toWrapperJson());
     }
 
     private void sendFailResponse(String userId, PullOldMsgRequest request, String errMsg) {
-        MonitorMeta meta = new MonitorMeta();
-
         PullOldMsgResponse errResp = new PullOldMsgResponse();
 
         errResp.rId = request.rId;
@@ -192,9 +176,7 @@ public class PullOldMsgHandler implements Handler<String, String> {
         errResp.status = 500;
         errResp.errMsg = errMsg;
 
-        outboxService.put(userId, errResp.toWrapperJson(meta));
-
-        consumerMonitorService.addFailCount(RequestResponseType.PullOldMsgRequestMsg);
+        outboxService.put(userId, errResp.toWrapperJson());
     }
 
 }
