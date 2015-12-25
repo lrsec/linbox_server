@@ -2,6 +2,7 @@ package com.medtree.im.server.connector.tcp;
 
 import com.medtree.im.server.connector.tcp.handler.IMChannelInitializer;
 import com.medtree.im.server.monitor.IConnectorMonitor;
+import com.medtree.im.server.monitor.impl.ConnectorMonitor;
 import com.medtree.im.server.service.IServerService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -39,7 +40,7 @@ public class ImTcpServer {
     private int port;
 
     public void run() throws Exception{
-        logger.debug("Im Tcp Server Started at {}", DateTime.now());
+        logger.info("Im Tcp Server Started at {}", DateTime.now());
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -66,18 +67,18 @@ public class ImTcpServer {
             workerGroup.shutdownGracefully();
         }
 
-        logger.debug("Im Tcp Server Stopped at {}", DateTime.now());
+        logger.info("Im Tcp Server Stopped at {}", DateTime.now());
     }
 
     public static void main(String[] args) {
         ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("spring/tcp.xml");
 
         try {
+            IConnectorMonitor connectorMonitorService = (IConnectorMonitor)appContext.getBean("connectorMonitor");
+            connectorMonitorService.start();
+
             ImTcpServer server = (ImTcpServer)appContext.getBean("imTcpServer");
             server.run();
-
-            IConnectorMonitor connectorMonitorService = (IConnectorMonitor) appContext.getBean("connectorMonitor");
-            connectorMonitorService.start();
         } catch (Exception e) {
             logger.error("Exception in starting ImTcpServer", e);
         }

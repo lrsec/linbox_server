@@ -20,6 +20,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.net.InetSocketAddress;
+import java.util.Base64;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     private long rId = -1;
     private String userId = null;
     private AES aes = null;
+    private Base64.Encoder base64Encoder = null;
 
     private JedisPool jedisPool;
     private IOutboxService outboxService;
@@ -52,6 +54,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         this.jedisPool = (JedisPool)applicationContext.getBean("jedisPool");
         this.outboxService = (IOutboxService)applicationContext.getBean("outboxService");
         this.userDAO = (IUserDAO) applicationContext.getBean("userDAO");
+        this.base64Encoder = Base64.getEncoder();
     }
 
     @Override
@@ -91,30 +94,13 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         if (authenticated) {
             logger.debug("User {} authenticated.", userId);
 
-            logger.debug("Check user im password. User: {}", userId);
-            logger.debug("Create sender for user {}", userId);
-
             InetSocketAddress address = (InetSocketAddress)ctx.channel().localAddress();
             String addressRecord = address.toString() + Long.toString(System.currentTimeMillis());
-            String password = null;
-
+            registerConnection(addressRecord);
             logger.debug("Create connection for user: {}. Remote address: {}.", userId, ctx.channel().remoteAddress());
 
-            try (Jedis jedis = jedisPool.getResource()) {
-                password = jedis.get(RedisKey.getIMPassword(Long.parseLong(userId)));
-                jedis.hset(RedisKey.CONNECT_REGISTRY, userId, addressRecord);
-            }
-
-//            //TODO delete
-//            password = Base64.toBase64String("medtree-im-passw".getBytes());
-
-            if (StringUtils.isBlank(password)) {
-                logger.error("Can not get im password for user: {}", userId);
-                sendFailResponse(ctx, 400, "Can not find user im password");
-                return;
-            } else {
-                aes.resetPassword(password);
-            }
+            //TODO 动态密码的生成策略,在测试时关闭
+//            resetPassword(ctx);
 
             task = executor.scheduleAtFixedRate(new SendMessageChecker(ctx.channel(), addressRecord), 0, loopRatio, TimeUnit.MILLISECONDS);
 
@@ -125,7 +111,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
             ctx.pipeline().remove(this);
 
-            sendSuccessResponse(ctx, wrapper);
+            sendSuccessResponse(ctx);
 
             return;
         } else {
@@ -138,7 +124,28 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     }
 
     private boolean isCertified(AuthRequest request) {
+        userId = request.userId;
         return userDAO.isUserValid(request.userId, request.token);
+    }
+
+    private void registerConnection(String addressRecord) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.hset(RedisKey.CONNECT_REGISTRY, userId, addressRecord);
+        }
+    }
+
+    private void resetPassword(final ChannelHandlerContext ctx) {
+        String password = null;
+        try (Jedis jedis = jedisPool.getResource()) {
+            password = jedis.get(RedisKey.getIMPassword(Long.parseLong(userId)));
+        }
+        if (StringUtils.isBlank(password)) {
+            logger.error("Can not get im password for user: {}", userId);
+            sendFailResponse(ctx, 400, "Can not find user im password");
+            return;
+        } else {
+            aes.resetPassword(password);
+        }
     }
 
     private class SendMessageChecker implements Runnable {
@@ -243,7 +250,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void sendSuccessResponse(ChannelHandlerContext ctx, MessageWrapper wrapper) {
+    private void sendSuccessResponse(ChannelHandlerContext ctx) {
         AuthResponse response = new AuthResponse();
         response.rId = rId;
         response.userId = userId;

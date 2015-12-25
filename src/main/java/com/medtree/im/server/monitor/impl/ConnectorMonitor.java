@@ -3,6 +3,7 @@ package com.medtree.im.server.monitor.impl;
 import com.medtree.im.server.monitor.IConnectorMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Executors;
@@ -16,11 +17,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ConnectorMonitor implements IConnectorMonitor {
     private static Logger logger = LoggerFactory.getLogger(ConnectorMonitor.class);
 
-    private static final int DURATION = 30;
-    private static final TimeUnit DURATION_UNIT = TimeUnit.SECONDS;
-
     private AtomicLong totalConnections;
     private ScheduledExecutorService executorService;
+
+    @Value("${monitor.duration.second}")
+    private int duration;
 
     public ConnectorMonitor() {
         totalConnections = new AtomicLong(0);
@@ -41,6 +42,8 @@ public class ConnectorMonitor implements IConnectorMonitor {
 
     @Override
     public void start() {
+        logger.info("Start connection monitor");
+
         executorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -51,7 +54,7 @@ public class ConnectorMonitor implements IConnectorMonitor {
                     logger.error("", e);
                 }
             }
-        }, DURATION, DURATION, DURATION_UNIT);
+        }, duration, duration, TimeUnit.SECONDS);
     }
 
     private void sendConnCount(long count) {
