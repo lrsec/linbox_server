@@ -41,7 +41,7 @@ public class GroupMessageEntity {
         dao.FromUserID = Long.parseLong(msg.fromUserId);
         dao.GroupId = msg.groupId;
         dao.MsgID = msg.msgId;
-        dao.MineType = msg.mineType;
+        dao.MineType = msg.mimeType;
         dao.Content = msg.content;
         dao.SendTime = msg.sendTime == 0 ? System.currentTimeMillis() : msg.sendTime;
         dao.Created = dao.SendTime;

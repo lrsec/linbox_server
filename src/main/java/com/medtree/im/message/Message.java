@@ -3,7 +3,6 @@ package com.medtree.im.message;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.medtree.im.server.storage.entity.GroupMessageEntity;
 import com.medtree.im.server.storage.entity.SessionMessageEntity;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Created by lrsec on 6/29/15.
@@ -31,8 +30,8 @@ public class Message {
     public long msgId;
 
     // 消息体类型
-    @JSONField(name = "mine_type")
-    public String mineType;
+    @JSONField(name = "mime_type")
+    public String mimeType;
 
     // 消息体内容
     @JSONField(name = "content")
@@ -52,7 +51,7 @@ public class Message {
         m.fromUserId = Long.toString(dao.FromUserID);
         m.toUserId = Long.toString(dao.ToUserID);
         m.msgId = dao.MsgID;
-        m.mineType = dao.MineType;
+        m.mimeType = dao.MineType;
         m.content = dao.Content;
         m.sendTime = dao.SendTime;
         m.type = MessageType.Session.getValue();
@@ -66,7 +65,7 @@ public class Message {
         m.fromUserId = fromUserId;
         m.groupId = groupId;
         m.msgId = dao.MsgID;
-        m.mineType = dao.MineType;
+        m.mimeType = dao.MineType;
         m.content = dao.Content;
         m.sendTime = dao.SendTime;
         m.type = MessageType.Group.getValue();

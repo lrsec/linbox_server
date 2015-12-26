@@ -117,13 +117,13 @@ public class DispatchToSingleHandler implements Handler<String, String> {
 //        pushMessage.To = Long.parseLong(toUserId);
 //        pushMessage.Badge = ServiceFactory.getInboxService().getTotalUnreadCount(toUserId) + 1;
 //
-//        if (message.mineType.startsWith("text")) {
+//        if (message.mimeType.startsWith("text")) {
 //            pushMessage.Description = fromUserName + ": " + message.content;
 //            pushMessage.Message = fromUserName + ": " + message.content;
-//        } else if (message.mineType.startsWith("audio")) {
+//        } else if (message.mimeType.startsWith("audio")) {
 //            pushMessage.Description = fromUserName + ": " + "[发来一条语音消息]";
 //            pushMessage.Message = fromUserName + ": " + "[发来一条语音消息]";
-//        } else if (message.mineType.startsWith("image")) {
+//        } else if (message.mimeType.startsWith("image")) {
 //            pushMessage.Description = fromUserName + ": " + "[发来一张图片]";
 //            pushMessage.Message = fromUserName + ": " + "[发来一张图片]";
 //        }
@@ -144,13 +144,13 @@ public class DispatchToSingleHandler implements Handler<String, String> {
 //        pushMessage.To = Long.parseLong(userId);
 //        pushMessage.Badge = ServiceFactory.getInboxService().getTotalUnreadCount(userId) + 1;
 //
-//        if (message.mineType.startsWith("text")) {
+//        if (message.mimeType.startsWith("text")) {
 //            pushMessage.Description = fromUserName + ": " + message.content;
 //            pushMessage.Message = fromUserName + ": " + message.content;
-//        } else if (message.mineType.startsWith("audio")) {
+//        } else if (message.mimeType.startsWith("audio")) {
 //            pushMessage.Description = fromUserName + ": " + "[发来一条语音消息]";
 //            pushMessage.Message = fromUserName + ": " + "[发来一条语音消息]";
-//        } else if (message.mineType.startsWith("image")) {
+//        } else if (message.mimeType.startsWith("image")) {
 //            pushMessage.Description = fromUserName + ": " + "[发来一张图片]";
 //            pushMessage.Message = fromUserName + ": " + "[发来一张图片]";
 //        }

@@ -22,7 +22,7 @@ public class SessionMessageDAO implements ISessionMessageDAO {
 
     @Override
     public SessionMessageEntity insert(Message msg) {
-        String sql = "insert into mdt_im_session_message set RId = :rId, SessionId = :sessionId, MsgID = :msgId, FromUserID = :fromUserId, ToUserID = :toUserId, MineType = :mineType, Content = :content, SendTime = :sendTime, Created = :created";
+        String sql = "insert into mdt_im_session_message set RId = :rId, SessionId = :sessionId, MsgID = :msgId, FromUserID = :fromUserId, ToUserID = :toUserId, MineType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
 
         SessionMessageEntity dao = SessionMessageEntity.convertToDao(msg);
         try (Connection conn = sql2o.open()) {
@@ -32,7 +32,7 @@ public class SessionMessageDAO implements ISessionMessageDAO {
                     .addParameter("msgId", dao.MsgID)
                     .addParameter("fromUserId", dao.FromUserID)
                     .addParameter("toUserId", dao.ToUserID)
-                    .addParameter("mineType", dao.MineType)
+                    .addParameter("mimeType", dao.MineType)
                     .addParameter("content", dao.Content)
                     .addParameter("sendTime", dao.SendTime)
                     .addParameter("created", dao.Created)

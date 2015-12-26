@@ -45,7 +45,7 @@ public class SessionMessageEntity {
         dao.FromUserID = Long.parseLong(msg.fromUserId);
         dao.ToUserID = Long.parseLong(msg.toUserId);
         dao.MsgID = msg.msgId;
-        dao.MineType = msg.mineType;
+        dao.MineType = msg.mimeType;
         dao.Content = msg.content;
         dao.SendTime = msg.sendTime == 0 ? System.currentTimeMillis() : msg.sendTime;
         dao.Created = dao.SendTime;

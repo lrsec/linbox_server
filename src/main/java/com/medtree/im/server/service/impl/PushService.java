@@ -54,16 +54,16 @@ public class PushService implements IPushService {
         String realName = message.fromUserId.equals("10000") || message.fromUserId.equals("10001") ? "医树" : userDAO.getUserName(message.fromUserId);
         pushMsg.Title = realName;
 
-        if (StringUtils.startsWith(message.mineType, "text")) {
+        if (StringUtils.startsWith(message.mimeType, "text")) {
             pushMsg.Description = message.content;
             pushMsg.Message = message.content;
-        } else if (StringUtils.startsWith(message.mineType, "image")) {
+        } else if (StringUtils.startsWith(message.mimeType, "image")) {
             pushMsg.Description = "[图片]";
             pushMsg.Message = "[图片]";
-        } else if (StringUtils.startsWith(message.mineType, "audio")) {
+        } else if (StringUtils.startsWith(message.mimeType, "audio")) {
             pushMsg.Description = "[音频]";
             pushMsg.Message = "[音频]";
-        } else if (StringUtils.startsWith(message.mineType, "video")){
+        } else if (StringUtils.startsWith(message.mimeType, "video")){
             pushMsg.Description = "[视频]";
             pushMsg.Message = "[视频]";
         }

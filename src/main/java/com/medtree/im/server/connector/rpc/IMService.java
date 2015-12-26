@@ -116,7 +116,7 @@ public class IMService implements IIMService {
         msg.toUserId = toUserId;
         msg.groupId = toGroupId;
         msg.msgId = -1;
-        msg.mineType = mineType;
+        msg.mimeType = mineType;
         msg.content = content;
         msg.sendTime = -1;
         msg.type = messageType;
