@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ConnectorMonitor implements IConnectorMonitor {
     private static Logger logger = LoggerFactory.getLogger(ConnectorMonitor.class);
 
-    private AtomicLong totalConnections;
+    private final AtomicLong totalConnections;
     private ScheduledExecutorService executorService;
 
     @Value("${monitor.duration.second}")

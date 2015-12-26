@@ -39,7 +39,7 @@ public class ImTcpServer {
     @Value("${im.port}")
     private int port;
 
-    public void run() throws Exception{
+    public void run(ClassPathXmlApplicationContext appContext) throws Exception{
         logger.info("Im Tcp Server Started at {}", DateTime.now());
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -51,7 +51,7 @@ public class ImTcpServer {
 
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new IMChannelInitializer(executorService))
+                    .childHandler(new IMChannelInitializer(appContext, executorService))
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.SO_TIMEOUT, SO_TIMEOUT_MILLIS)
@@ -78,7 +78,7 @@ public class ImTcpServer {
             connectorMonitorService.start();
 
             ImTcpServer server = (ImTcpServer)appContext.getBean("imTcpServer");
-            server.run();
+            server.run(appContext);
         } catch (Exception e) {
             logger.error("Exception in starting ImTcpServer", e);
         }
