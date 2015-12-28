@@ -99,9 +99,9 @@ public class DispatchToSingleHandler implements Handler<String, String> {
     }
 
     private void sendPush(Message message) {
-        String fromUserId = message.fromUserId;
-        String fromUserName = userDAO.getUserName(fromUserId);
-        String toUserId = message.toUserId;
+//        String fromUserId = message.fromUserId;
+//        String fromUserName = userDAO.getUserName(fromUserId);
+//        String toUserId = message.toUserId;
 
 //        PushMessage pushMessage = new PushMessage();
 //
@@ -133,8 +133,8 @@ public class DispatchToSingleHandler implements Handler<String, String> {
     }
 
     private void sendConsultPush(String userId, Message message) {
-        String fromUserId = message.fromUserId;
-        String fromUserName = userDAO.getUserName(fromUserId);
+//        String fromUserId = message.fromUserId;
+//        String fromUserName = userDAO.getUserName(fromUserId);
 
 //        PushMessage pushMessage = new PushMessage();
 //        pushMessage.ActionType = MessageAction.Text;
