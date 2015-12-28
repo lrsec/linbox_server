@@ -81,7 +81,7 @@ Linbox use tcp protocal and JSON structure in communication.
 Data package structure is designed as below:
 
 |Version|Type|Length|Content|
-|--:--|--:--|--:--|--:--|
+|-----|-----|----|------|
 |2 Byte|2 Byte|4 Byte|JSON String|
 
 
