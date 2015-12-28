@@ -9,7 +9,7 @@
     <import resource="classpath:spring/spring.xml" />
 
     <!--IM Router Server-->
-    <bean id="imRouterServer" class="com.medtree.im.server.router.ImRouterServer"/>
+    <bean id="imRouterServer" class="com.linbox.im.server.router.ImRouterServer"/>
     <!--IM Router Server-->
 
 </beans>

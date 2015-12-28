@@ -13,8 +13,8 @@
     <dubbo:registry address="zookeeper://zknode1:2181?backup=zknode2:2182" />
     <dubbo:protocol name="dubbo" port="20881" />
 
-    <bean id="imService" class="com.medtree.im.server.connector.rpc.IMService"></bean>
-    <dubbo:service interface="com.medtree.im.interfaces.IIMService" ref="imService" timeout="5000" loadbalance="roundrobin"/>
+    <bean id="imService" class="com.linbox.im.server.connector.rpc.IMService"></bean>
+    <dubbo:service interface="com.linbox.im.interfaces.IIMService" ref="imService" timeout="5000" loadbalance="roundrobin"/>
     <!--dubbo rpc config-->
 
 </beans>

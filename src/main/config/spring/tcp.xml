@@ -6,7 +6,7 @@
 
     <import resource="classpath:spring/spring.xml" />
 
-    <bean id="imTcpServer" class="com.medtree.im.server.connector.tcp.ImTcpServer"/>
-    <bean id="connectorMonitor" class="com.medtree.im.server.monitor.impl.ConnectorMonitor"/>
+    <bean id="imTcpServer" class="com.linbox.im.server.connector.tcp.ImTcpServer"/>
+    <bean id="connectorMonitor" class="com.linbox.im.server.monitor.impl.ConnectorMonitor"/>
 
 </beans>
