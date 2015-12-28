@@ -1,6 +1,6 @@
 # linbox_server
 
-LINBOX is a im system designed for www.medtree.cn.
+LINBOX is a IM system designed for www.medtree.cn.
 
 Download medtree app for iphone at [here](https://itunes.apple.com/cn/app/yi-shu/id933709180?mt=8)
 
@@ -10,6 +10,7 @@ Download medtree app for android at [here](https://medtree.cn/release/android/4.
 * Netty and tcp protocol
 * Kafka as center MQ
 * Dubbo as rpc framework
+* Zookeeper as config center
 
 # Usage
 Build the project:
