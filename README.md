@@ -58,7 +58,7 @@ You can find all mysql operations in package ```com.linbox.im.server.storage```
 
 There are 4 tables predefined in programs, sql script could be find in [mysql.sql](src/main/docs/mysql.sql)
 
-## Configs
+### Configs
 Config mysql connection in [im.properties](src/main/config/im.properties)
 
 ## Redis
