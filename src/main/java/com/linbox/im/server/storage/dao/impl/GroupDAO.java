@@ -25,7 +25,7 @@ public class GroupDAO implements IGroupDAO {
     public List<String> getGroupMembers(String groupId) {
         List<String> members = new LinkedList<>();
 
-        String sql = "SELECT AccountId FROM Consult_Person WHERE ConsultationId = :groupId ";
+        String sql = "SELECT AccountId FROM group_members WHERE ConsultationId = :groupId ";
 
         try(Connection conn = sql2o.open()) {
             members.addAll(conn.createQuery(sql)

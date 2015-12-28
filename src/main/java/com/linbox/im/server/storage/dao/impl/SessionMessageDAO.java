@@ -22,7 +22,7 @@ public class SessionMessageDAO implements ISessionMessageDAO {
 
     @Override
     public SessionMessageEntity insert(Message msg) {
-        String sql = "insert into mdt_im_session_message set RId = :rId, SessionId = :sessionId, MsgID = :msgId, FromUserID = :fromUserId, ToUserID = :toUserId, MineType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
+        String sql = "insert into im_session_message set RId = :rId, SessionId = :sessionId, MsgID = :msgId, FromUserID = :fromUserId, ToUserID = :toUserId, MineType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
 
         SessionMessageEntity dao = SessionMessageEntity.convertToDao(msg);
         try (Connection conn = sql2o.open()) {
@@ -44,7 +44,7 @@ public class SessionMessageDAO implements ISessionMessageDAO {
 
     @Override
     public List<SessionMessageEntity> findMsg(String sessionId, long maxMsgId, long minMsgId, int limit) {
-        String sql = "select * from mdt_im_session_message where SessionId = :sessionId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId ORDER BY MsgID DESC LIMIT :limit";
+        String sql = "select * from im_session_message where SessionId = :sessionId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId ORDER BY MsgID DESC LIMIT :limit";
 
         List<SessionMessageEntity> daos = new LinkedList<SessionMessageEntity>();
 
@@ -64,7 +64,7 @@ public class SessionMessageDAO implements ISessionMessageDAO {
 
     @Override
     public SessionMessageEntity findMsgByRId(long rId, String fromUserId, String toUserId) {
-        String sql = "select * from mdt_im_session_message where RId = :rid AND FromUserID = :fromUserId AND ToUserID = :toUserId";
+        String sql = "select * from im_session_message where RId = :rid AND FromUserID = :fromUserId AND ToUserID = :toUserId";
 
         try(Connection conn = sql2o.open()) {
             return conn.createQuery(sql)

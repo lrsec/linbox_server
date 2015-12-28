@@ -27,7 +27,7 @@ public class UserDAO implements IUserDAO {
             return "";
         }
 
-        String sql = "select RealName from mdt_profile where AccountID = :accountId";
+        String sql = "select RealName from profile where AccountID = :accountId";
 
 
         String realName;

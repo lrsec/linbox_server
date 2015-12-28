@@ -26,9 +26,9 @@ There is no special requirement for mysql version.
 But if you want to use **emojis**, you need to use mysql version **5.6+**, and config the character set to *utf8mb4*.
 
 ### Predefined Tables
-You can find all mysql operations in package ```com.linbox
+You can find all mysql operations in package ```com.linbox.im.server.storage```
 
-There are 3 tables predefined in programs:
+There are 4 tables predefined in programs, sql script could be find in [docs/mysql.sql](src/main/docs/mysql.sql)
 * 
  
 

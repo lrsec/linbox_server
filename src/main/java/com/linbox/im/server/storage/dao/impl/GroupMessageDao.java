@@ -23,7 +23,7 @@ public class GroupMessageDao implements IGroupMessageDAO {
 
     @Override
     public GroupMessageEntity insert(Message msg) {
-        String sql = "INSERT INTO mdt_im_group_message set RId = :rId, GroupId = :groupId, FromUserID = :fromUserId, MsgID = :msgId, MineType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
+        String sql = "INSERT INTO im_group_message set RId = :rId, GroupId = :groupId, FromUserID = :fromUserId, MsgID = :msgId, MineType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
 
         GroupMessageEntity dao = GroupMessageEntity.convertToGroupMsgDao(msg);
 
@@ -47,7 +47,7 @@ public class GroupMessageDao implements IGroupMessageDAO {
     @Override
     public List<GroupMessageEntity> findMsg(String groupId, long maxMsgId, long minMsgId, int limit) {
 
-        String sql = "select * from mdt_im_group_message where GroupId = :groupId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId  ORDER BY MsgID DESC LIMIT :limit";
+        String sql = "select * from im_group_message where GroupId = :groupId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId  ORDER BY MsgID DESC LIMIT :limit";
 
         List<GroupMessageEntity> daos = new LinkedList<GroupMessageEntity>();
 
@@ -68,7 +68,7 @@ public class GroupMessageDao implements IGroupMessageDAO {
 
     @Override
     public GroupMessageEntity findMsgByRId(long rId, String fromUserId, String groupId) {
-        String sql = "SELECT * FROM mdt_im_group_message WHERE RId = :rId AND FromUserID = :fromUserId AND GroupId = :groupId";
+        String sql = "SELECT * FROM im_group_message WHERE RId = :rId AND FromUserID = :fromUserId AND GroupId = :groupId";
 
         try(Connection conn = sql2o.open()) {
             return conn.createQuery(sql)
