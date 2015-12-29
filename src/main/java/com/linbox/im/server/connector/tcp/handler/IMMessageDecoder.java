@@ -86,11 +86,7 @@ public class IMMessageDecoder extends ByteToMessageDecoder{
                     try {
                         byte[] buf = in.readBytes(contentSize).array();
 
-                        long startTime = System.currentTimeMillis();
-
                         String json = aes.decrypt(buf);
-
-                        long decryptEndTime = System.currentTimeMillis();
 
                         Object message = JSON.parseObject(json, requestResponseType.getClazz());
 

@@ -17,8 +17,8 @@ import java.util.Base64;
 public class AES {
     private static Logger logger = LoggerFactory.getLogger(AES.class);
 
-    private static final String DEFAULT_PASSWORD = "medtree-im-passwmedtree-im-passw";
-//    private static final String DEFAULT_PASSWORD = "medtree-im-passw";
+//    private static final String DEFAULT_PASSWORD = "medtree-im-passwmedtree-im-passw";
+    private static final String DEFAULT_PASSWORD = "medtree-im-passw";
     public static final String CIPHER_ALGORITHM="AES/CBC/PKCS5Padding";
     public static final String KEY_ALGORITHM="AES";
     protected static final String STRING_PATTERN = "UTF-8";

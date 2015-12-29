@@ -13,7 +13,7 @@ import java.util.Base64;
 public class AESUtils {
     private static Logger logger = LoggerFactory.getLogger(AESUtils.class);
     private static final String KEY_ALGORITHM="AES";
-    private static final int KEY_LENGTH=256;
+    private static final int KEY_LENGTH=128;
 
     private static Base64.Encoder base64Encoder = Base64.getEncoder();
 
