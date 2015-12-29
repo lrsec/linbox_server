@@ -2,9 +2,9 @@ package com.linbox.im.server.connector.tcp.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.linbox.im.message.*;
-import com.linbox.im.server.service.IOutboxService;
 import com.linbox.im.server.connector.tcp.constant.HandlerName;
-import com.linbox.im.server.constant.RedisKey;
+import com.linbox.im.server.service.IOutboxService;
+import com.linbox.im.server.storage.dao.IServerDAO;
 import com.linbox.im.server.storage.dao.IUserDAO;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -16,8 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import java.net.InetSocketAddress;
 import java.util.Base64;
@@ -42,18 +40,18 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     private AES aes = null;
     private Base64.Encoder base64Encoder = null;
 
-    private JedisPool jedisPool;
     private IOutboxService outboxService;
     private IUserDAO userDAO;
+    private IServerDAO serverDAO;
 
     public AuthHandler(ClassPathXmlApplicationContext applicationContext, ScheduledExecutorService executor, int loopRatio, int maxHandleTimeInMills, AES aes) {
         this.executor = executor;
         this.loopRatio = loopRatio;
         this.maxHandleTimeInMills = maxHandleTimeInMills;
         this.aes = aes;
-        this.jedisPool = (JedisPool)applicationContext.getBean("jedisPool");
         this.outboxService = (IOutboxService)applicationContext.getBean("outboxService");
         this.userDAO = (IUserDAO) applicationContext.getBean("userDAO");
+        this.serverDAO = (IServerDAO) applicationContext.getBean("serverDAO");
         this.base64Encoder = Base64.getEncoder();
     }
 
@@ -96,7 +94,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
             InetSocketAddress address = (InetSocketAddress)ctx.channel().localAddress();
             String addressRecord = address.toString() + Long.toString(System.currentTimeMillis());
-            registerConnection(addressRecord);
+            serverDAO.registerConnection(userId, addressRecord);
             logger.debug("Create connection for user: {}. Remote address: {}.", userId, ctx.channel().remoteAddress());
 
             //TODO 动态密码的生成策略,在测试时关闭
@@ -128,17 +126,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         return userDAO.isUserValid(request.userId, request.token);
     }
 
-    private void registerConnection(String addressRecord) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.hset(RedisKey.CONNECT_REGISTRY, userId, addressRecord);
-        }
-    }
-
     private void resetPassword(final ChannelHandlerContext ctx) {
-        String password = null;
-        try (Jedis jedis = jedisPool.getResource()) {
-            password = jedis.get(RedisKey.getIMPassword(Long.parseLong(userId)));
-        }
+        String password = serverDAO.getPassword(Long.parseLong(userId));
+
         if (StringUtils.isBlank(password)) {
             logger.error("Can not get im password for user: {}", userId);
             sendFailResponse(ctx, 400, "Can not find user im password");
@@ -215,15 +205,13 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                 return true;
             }
 
-            try (Jedis jedis = jedisPool.getResource()) {
-                String record = jedis.hget(RedisKey.CONNECT_REGISTRY, userId);
+            String record = serverDAO.getConnection(userId);
 
-                if(!StringUtils.equals(record, linkRecord)) {
-                    logger.warn("Connection is updated, should terminate the sending task for user {}. Local address {}. New connection address: {}", userId, StringUtils.trimToEmpty(linkRecord), StringUtils.trimToEmpty(record));
+            if(!StringUtils.equals(record, linkRecord)) {
+                logger.warn("Connection is updated, should terminate the sending task for user {}. Local address {}. New connection address: {}", userId, StringUtils.trimToEmpty(linkRecord), StringUtils.trimToEmpty(record));
 
-                    sendOfflineInfo();
-                    return true;
-                }
+                sendOfflineInfo();
+                return true;
             }
 
             return false;

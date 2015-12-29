@@ -2,7 +2,7 @@ package com.linbox.im.server.connector.tcp;
 
 import com.linbox.im.server.connector.tcp.handler.IMChannelInitializer;
 import com.linbox.im.server.monitor.IConnectorMonitor;
-import com.linbox.im.server.service.IServerService;
+import com.linbox.im.server.storage.dao.IServerDAO;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -33,7 +33,7 @@ public class ImTcpServer {
     private static Logger logger = LoggerFactory.getLogger(ImTcpServer.class);
 
     @Autowired
-    private IServerService serverService;
+    private IServerDAO serverDAO;
 
     @Value("${im.port}")
     private int port;
@@ -58,7 +58,7 @@ public class ImTcpServer {
                     .childOption(ChannelOption.TCP_NODELAY, true);
 
             ChannelFuture future = bootstrap.bind(port).sync();
-            serverService.register();
+            serverDAO.registerServer();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
             logger.error("Error in Tcp Server", e);

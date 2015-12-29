@@ -6,9 +6,9 @@ import com.linbox.im.exceptions.IMConsumerException;
 import com.linbox.im.exceptions.IMException;
 import com.linbox.im.message.*;
 import com.linbox.im.server.router.handlers.dispatcher.SendDispatcher;
-import com.linbox.im.server.service.IIDService;
 import com.linbox.im.server.service.IOutboxService;
 import com.linbox.im.server.storage.dao.IGroupMessageDAO;
+import com.linbox.im.server.storage.dao.IMessageDAO;
 import com.linbox.im.server.storage.dao.ISessionMessageDAO;
 import com.linbox.im.server.storage.entity.SessionMessageEntity;
 import com.linbox.im.utils.IMUtils;
@@ -30,13 +30,13 @@ public class SendMsgHandler implements Handler<String, String> {
     private static Logger logger = LoggerFactory.getLogger(SendMsgHandler.class);
 
     @Autowired
-    private IIDService idService;
-
-    @Autowired
     private ISessionMessageDAO sessionMessageDAO;
 
     @Autowired
     private IGroupMessageDAO groupMessageDAO;
+
+    @Autowired
+    private IMessageDAO messageDAO;
 
     @Autowired
     private IOutboxService outboxService;
@@ -96,7 +96,7 @@ public class SendMsgHandler implements Handler<String, String> {
                         if (dao == null) {
                             String sessionKey = IMUtils.getSessionKey(userId, remoteId);
 
-                            body.msgId = idService.generateMsgId(sessionKey);
+                            body.msgId = messageDAO.generateMsgId(sessionKey);
                             body.sendTime = System.currentTimeMillis();
                             dao = sessionMessageDAO.insert(body);
 
@@ -129,7 +129,7 @@ public class SendMsgHandler implements Handler<String, String> {
 
                         GroupMessageEntity groupMsgDao = groupMessageDAO.findMsgByRId(groupMsgBody.rId, groupMsgBody.fromUserId, groupMsgBody.groupId);
                         if (groupMsgDao == null) {
-                            groupMsgBody.msgId = idService.generateMsgId(groupId);
+                            groupMsgBody.msgId = messageDAO.generateMsgId(groupId);
                             groupMsgBody.sendTime = System.currentTimeMillis();
                             groupMsgDao = groupMessageDAO.insert(groupMsgBody);
 

@@ -9,19 +9,15 @@ import com.linbox.im.message.MessageWrapper;
 import com.linbox.im.message.SendMsgRequest;
 import com.linbox.im.message.system.SystemMessage;
 import com.linbox.im.server.constant.MessageTopic;
-import com.linbox.im.server.constant.RedisKey;
-import com.linbox.im.server.service.IIDService;
 import com.linbox.im.server.service.IOutboxService;
-import com.linbox.im.utils.AESUtils;
+import com.linbox.im.server.storage.dao.IGroupDAO;
+import com.linbox.im.server.storage.dao.IServerDAO;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -31,41 +27,25 @@ public class IMService implements IIMService {
     private static Logger logger = LoggerFactory.getLogger(IMService.class);
 
     @Autowired
-    private JedisPool jedisPool;
-
-    @Autowired
     private KafkaProducer<String,String> kafkaProducer;
-
-    @Autowired
-    private IIDService idService;
 
     @Autowired
     private IOutboxService outboxService;
 
+    @Autowired
+    private IServerDAO serverDAO;
+
+    @Autowired
+    private IGroupDAO groupDAO;
+
     @Override
     public Set<String> getIMServerList() {
-        Set<String> result = new LinkedHashSet<>();
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            result.addAll(jedis.zrange(RedisKey.IP_REGISTRY, 0, -1));
-        } catch (Exception e) {
-            logger.error("Get IM server list from redis fail.", e);
-        }
-
-        return result;
+        return serverDAO.getServers();
     }
 
     @Override
     public String getPassword(long userId) {
-        String token = AESUtils.generatePassword();
-
-        String key= RedisKey.getIMPassword(userId);
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.setex(key,3600, token);
-        }
-
-        return token;
+        return serverDAO.generatePassword(userId);
     }
 
     @Override
@@ -143,7 +123,7 @@ public class IMService implements IIMService {
 
     @Override
     public long generateGroupId() {
-        return idService.generateGroupId();
+        return groupDAO.generateGroupId();
     }
 
     @Override

@@ -7,18 +7,16 @@ import com.linbox.im.message.MessageWrapper;
 import com.linbox.im.message.system.SyncSystemUnreadRequest;
 import com.linbox.im.message.system.SyncSystemUnreadResponse;
 import com.linbox.im.message.system.SystemMessage;
-import com.linbox.im.message.system.content.SystemUnreadContent;
-import com.linbox.im.server.constant.RedisKey;
-import com.linbox.im.server.service.IOutboxService;
 import com.linbox.im.message.system.SystemMessageTypes;
+import com.linbox.im.message.system.content.SystemUnreadContent;
+import com.linbox.im.server.service.IOutboxService;
+import com.linbox.im.server.storage.dao.IMessageDAO;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,7 @@ public class SyncSystemUnreadHandler implements Handler<String, String> {
     private static Logger logger = LoggerFactory.getLogger(SyncSystemUnreadHandler.class);
 
     @Autowired
-    private JedisPool jedisPool;
+    private IMessageDAO messageDAO;
 
     @Autowired
     private IOutboxService outboxService;
@@ -57,13 +55,8 @@ public class SyncSystemUnreadHandler implements Handler<String, String> {
             String userId = request.userId;
 
             try {
-                long newFriendsCount = 0;
-                long newMessageCount = 0;
-
-                try (Jedis jedis = jedisPool.getResource()) {
-                    newFriendsCount = jedis.hlen(RedisKey.getFriendRequestsKey(Long.parseLong(userId)));
-                    newMessageCount = jedis.llen(RedisKey.getUnreadMessageNotifyKey(Long.parseLong(userId)));
-                }
+                long newFriendsCount = messageDAO.getNewFriendCount(userId);
+                long newMessageCount = messageDAO.getNewMessageCount(userId);
 
                 List<SystemMessage> messages = new ArrayList<>(2);
 

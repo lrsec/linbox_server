@@ -1,5 +1,7 @@
 package com.linbox.im.server.storage.dao.impl;
 
+import com.linbox.im.exceptions.IMException;
+import com.linbox.im.server.constant.RedisKey;
 import com.linbox.im.server.storage.dao.IGroupDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +25,9 @@ public class GroupDAO implements IGroupDAO {
     @Autowired
     private Sql2o sql2o;
 
+    @Autowired
+    private JedisPool jedisPool;
+
     @Override
     public List<String> getGroupMembers(String groupId) {
         List<String> members = new LinkedList<>();
@@ -34,5 +41,16 @@ public class GroupDAO implements IGroupDAO {
         }
 
         return members;
+    }
+
+    @Override
+    public long generateGroupId() {
+        try (Jedis jedis = jedisPool.getResource()) {
+            if(!jedis.exists(RedisKey.GROUP_ID)) {
+                throw new IMException( RedisKey.GROUP_ID + "不存在，无法获取合法的 Group Id");
+            }
+
+            return jedis.incr(RedisKey.GROUP_ID);
+        }
     }
 }

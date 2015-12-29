@@ -7,4 +7,5 @@ import java.util.List;
  */
 public interface IGroupDAO {
     List<String> getGroupMembers(String groupId);
+    long generateGroupId();
 }
