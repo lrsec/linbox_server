@@ -67,7 +67,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
-        logger.info("Received AuthRequest. Message: {}", JSON.toJSONString(msg));
+        logger.debug("Received AuthRequest. Message: {}", JSON.toJSONString(msg));
 
         MessageWrapper wrapper = (MessageWrapper) msg;
 

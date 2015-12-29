@@ -119,7 +119,7 @@ public class ImRouterServer {
         private String topic;
         private Properties props;
         private Handler handler;
-        private ExecutorService executorService = Executors.newFixedThreadPool(30);
+        private ExecutorService executorService = Executors.newFixedThreadPool(5);
 
         ConsumerTask(Properties props, String topic, Handler handler) {
             this.topic = topic;
@@ -135,7 +135,7 @@ public class ImRouterServer {
             consumer.subscribe(Arrays.asList(topic));
 
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(2000);
+                ConsumerRecords<String, String> records = consumer.poll(100);
                 for (ConsumerRecord<String, String> record : records) {
                     try {
                         executorService.submit(new Runnable() {

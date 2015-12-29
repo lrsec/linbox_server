@@ -53,7 +53,7 @@ public class ImTcpServer {
                     .childHandler(new IMChannelInitializer(appContext, executorService))
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childOption(ChannelOption.SO_TIMEOUT, SO_TIMEOUT_MILLIS)
+//                    .childOption(ChannelOption.SO_TIMEOUT, SO_TIMEOUT_MILLIS)
                     .childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT_MILLIS)
                     .childOption(ChannelOption.TCP_NODELAY, true);
 
