@@ -32,13 +32,13 @@ public class IMMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Active IMMessageHandler");
+        logger.debug("Active IMMessageHandler");
         connectorMonitorService.incrConnCount();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Inactive IMMessageHandler");
+        logger.debug("Inactive IMMessageHandler");
         connectorMonitorService.decConnCount();
     }
 
