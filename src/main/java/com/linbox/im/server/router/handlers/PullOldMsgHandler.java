@@ -42,9 +42,6 @@ public class PullOldMsgHandler implements Handler<String, String> {
     private IInboxService inboxService;
 
     @Autowired
-    private IGroupDAO groupDAO;
-
-    @Autowired
     private IGroupMessageDAO groupMessageDAO;
 
     @Override

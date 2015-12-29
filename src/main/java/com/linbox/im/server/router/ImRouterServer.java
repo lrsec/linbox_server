@@ -15,6 +15,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by lrsec on 7/2/15.
@@ -117,6 +119,7 @@ public class ImRouterServer {
         private String topic;
         private Properties props;
         private Handler handler;
+        private ExecutorService executorService = Executors.newFixedThreadPool(30);
 
         ConsumerTask(Properties props, String topic, Handler handler) {
             this.topic = topic;
@@ -132,10 +135,15 @@ public class ImRouterServer {
             consumer.subscribe(Arrays.asList(topic));
 
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(1000);
+                ConsumerRecords<String, String> records = consumer.poll(2000);
                 for (ConsumerRecord<String, String> record : records) {
                     try {
-                        handler.handle(record);
+                        executorService.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                handler.handle(record);
+                            }
+                        });
                     } catch (IMConsumerException e1) {
                         logger.error("IMConsumerException in consumer for Topic: " + topic + ". Message: + " + e1.getTopicMessage() + ".", e1);
                     } catch (Exception e2) {
