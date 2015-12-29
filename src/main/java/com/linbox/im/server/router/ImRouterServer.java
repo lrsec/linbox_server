@@ -89,36 +89,36 @@ public class ImRouterServer {
         logger.info("Start IM Router Server");
 
         logger.info("Start Sync Unread Handler");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_SYNC_UNREAD, syncUnreadHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_SYNC_UNREAD, syncUnreadHandler)).start();
 
         logger.info("Start Read ACK Handler");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_READ_ACK, readAckHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_READ_ACK, readAckHandler)).start();
 
         logger.info("Start Pull Old Msg Handler");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_PULL_OLD_MEG, pullOldMsgHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_PULL_OLD_MEG, pullOldMsgHandler)).start();
 
         logger.info("Start Send Msg Handler");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_SEND_MSG, sendMsgHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_SEND_MSG, sendMsgHandler)).start();
 
         logger.info("Start Ping Msg Handler");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_PING, pingHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_PING, pingHandler)).start();
 
         logger.info("Start Sync System Unread Handler");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_SYNC_SYSTEM_UNREAD, syncSystemUnreadHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_SYNC_SYSTEM_UNREAD, syncSystemUnreadHandler)).start();
 
         logger.debug("Start Single Send Dispatch Consumer");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_DISPATCH_SEND_SINGLE, dispatchToSingleHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_DISPATCH_SEND_SINGLE, dispatchToSingleHandler)).start();
 
         logger.debug("Start Group Send Dispatch Consumer");
-        new Thread(new ConsumerThread(props, MessageTopic.TOPIC_DISPATCH_SEND_GROUP, dispatchToGroupHandler)).start();
+        new Thread(new ConsumerTask(props, MessageTopic.TOPIC_DISPATCH_SEND_GROUP, dispatchToGroupHandler)).start();
     }
 
-    private static class ConsumerThread implements Runnable{
+    private static class ConsumerTask implements Runnable{
         private String topic;
         private Properties props;
         private Handler handler;
 
-        ConsumerThread(Properties props, String topic, Handler handler) {
+        ConsumerTask(Properties props, String topic, Handler handler) {
             this.topic = topic;
             this.props = props;
             this.handler = handler;
@@ -126,11 +126,13 @@ public class ImRouterServer {
 
         @Override
         public void run() {
+            logger.info("Thread for {} consumer started", topic);
+
             KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
             consumer.subscribe(Arrays.asList(topic));
 
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(100);
+                ConsumerRecords<String, String> records = consumer.poll(0);
                 for (ConsumerRecord<String, String> record : records) {
                     try {
                         handler.handle(record);
