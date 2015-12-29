@@ -22,23 +22,24 @@ public class UserDAO implements IUserDAO {
     private Sql2o sql2o;
 
     public String getUserName(String userId) {
-        if (StringUtils.isBlank(userId)) {
-            logger.warn("Query user name for null or empty user id");
-            return "";
-        }
-
-        String sql = "select RealName from profile where AccountID = :accountId";
-
-
-        String realName;
-
-        try (Connection conn = sql2o.open()) {
-            realName = conn.createQuery(sql)
-                    .addParameter("accountId", userId)
-                    .executeAndFetchFirst(String.class);
-        }
-
-        return Strings.nullToEmpty(realName);
+//        if (StringUtils.isBlank(userId)) {
+//            logger.warn("Query user name for null or empty user id");
+//            return "";
+//        }
+//
+//        String sql = "select RealName from profile where AccountID = :accountId";
+//
+//
+//        String realName;
+//
+//        try (Connection conn = sql2o.open()) {
+//            realName = conn.createQuery(sql)
+//                    .addParameter("accountId", userId)
+//                    .executeAndFetchFirst(String.class);
+//        }
+//
+//        return Strings.nullToEmpty(realName);
+        return "";
     }
 
     @Override

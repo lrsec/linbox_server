@@ -14,6 +14,7 @@ import redis.clients.jedis.JedisPool;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by lrsec on 7/4/15.
@@ -28,29 +29,37 @@ public class GroupDAO implements IGroupDAO {
     @Autowired
     private JedisPool jedisPool;
 
+    //TODO TEST
+    private AtomicLong atomicLong = new AtomicLong(0);
+
     @Override
     public List<String> getGroupMembers(String groupId) {
         List<String> members = new LinkedList<>();
-
-        String sql = "SELECT AccountId FROM group_members WHERE ConsultationId = :groupId ";
-
-        try(Connection conn = sql2o.open()) {
-            members.addAll(conn.createQuery(sql)
-                    .addParameter("groupId", groupId)
-                    .executeAndFetch(String.class));
-        }
-
+//
+//        String sql = "SELECT AccountId FROM group_members WHERE ConsultationId = :groupId ";
+//
+//        try(Connection conn = sql2o.open()) {
+//            members.addAll(conn.createQuery(sql)
+//                    .addParameter("groupId", groupId)
+//                    .executeAndFetch(String.class));
+//        }
+//
         return members;
     }
 
     @Override
     public long generateGroupId() {
-        try (Jedis jedis = jedisPool.getResource()) {
-            if(!jedis.exists(RedisKey.GROUP_ID)) {
-                throw new IMException( RedisKey.GROUP_ID + "不存在，无法获取合法的 Group Id");
-            }
 
-            return jedis.incr(RedisKey.GROUP_ID);
-        }
+        return atomicLong.incrementAndGet();
+
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            if(!jedis.exists(RedisKey.GROUP_ID)) {
+//                throw new IMException( RedisKey.GROUP_ID + "不存在，无法获取合法的 Group Id");
+//            }
+//
+//            return jedis.incr(RedisKey.GROUP_ID);
+//        }
+
+
     }
 }

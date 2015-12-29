@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Created by lrsec on 12/29/15.
  */
@@ -21,40 +23,44 @@ public class MessageDAO implements IMessageDAO {
     @Autowired
     private JedisPool jedisPool;
 
+    private AtomicLong atomicLong = new AtomicLong(0);
+
     @Override
     public long getNewMessageCount(String userId) {
         long newMessageCount = 0;
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            newMessageCount = jedis.llen(RedisKey.getUnreadMessageNotifyKey(Long.parseLong(userId)));
-        }
-
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            newMessageCount = jedis.llen(RedisKey.getUnreadMessageNotifyKey(Long.parseLong(userId)));
+//        }
+//
         return newMessageCount;
     }
 
     @Override
     public long getNewFriendCount(String userId) {
         long newFriendsCount = 0;
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            newFriendsCount = jedis.hlen(RedisKey.getFriendRequestsKey(Long.parseLong(userId)));
-        }
-
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            newFriendsCount = jedis.hlen(RedisKey.getFriendRequestsKey(Long.parseLong(userId)));
+//        }
+//
         return newFriendsCount;
     }
 
     @Override
     //TODO 目前使用 redis 实现，之后可以考虑使用 zk 提高可用性，避免由于 redis crash 导致的 id 不一致问题
     public long generateMsgId(String key) {
-        if (StringUtils.isBlank(key)) {
-            logger.error("Key should not be empty.");
-            throw new IMException("Key should not be empty.");
-        }
+        return atomicLong.incrementAndGet();
 
-        key = RedisKey.getMsgIDKey(key);
-
-        try(Jedis jedis = jedisPool.getResource()) {
-            return jedis.incr(key);
-        }
+//        if (StringUtils.isBlank(key)) {
+//            logger.error("Key should not be empty.");
+//            throw new IMException("Key should not be empty.");
+//        }
+//
+//        key = RedisKey.getMsgIDKey(key);
+//
+//        try(Jedis jedis = jedisPool.getResource()) {
+//            return jedis.incr(key);
+//        }
     }
 }

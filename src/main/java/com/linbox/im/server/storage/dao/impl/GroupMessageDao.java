@@ -23,60 +23,64 @@ public class GroupMessageDao implements IGroupMessageDAO {
 
     @Override
     public GroupMessageEntity insert(Message msg) {
-        String sql = "INSERT INTO im_group_message set RId = :rId, GroupId = :groupId, FromUserID = :fromUserId, MsgID = :msgId, MimeType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
+//        String sql = "INSERT INTO im_group_message set RId = :rId, GroupId = :groupId, FromUserID = :fromUserId, MsgID = :msgId, MimeType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
+//
+//        GroupMessageEntity dao = GroupMessageEntity.convertToGroupMsgDao(msg);
+//
+//        try (Connection conn = sql2o.open()) {
+//            conn.createQuery(sql)
+//                    .addParameter("rId", dao.RId)
+//                    .addParameter("groupId", dao.GroupId)
+//                    .addParameter("fromUserId", dao.FromUserID)
+//                    .addParameter("msgId", dao.MsgID)
+//                    .addParameter("mimeType", dao.MimeType)
+//                    .addParameter("content", dao.Content)
+//                    .addParameter("sendTime", dao.SendTime)
+//                    .addParameter("created", dao.Created)
+//                    .executeUpdate();
+//        }
+//
+//        return dao;
 
-        GroupMessageEntity dao = GroupMessageEntity.convertToGroupMsgDao(msg);
-
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(sql)
-                    .addParameter("rId", dao.RId)
-                    .addParameter("groupId", dao.GroupId)
-                    .addParameter("fromUserId", dao.FromUserID)
-                    .addParameter("msgId", dao.MsgID)
-                    .addParameter("mimeType", dao.MimeType)
-                    .addParameter("content", dao.Content)
-                    .addParameter("sendTime", dao.SendTime)
-                    .addParameter("created", dao.Created)
-                    .executeUpdate();
-        }
-
-        return dao;
+        return null;
 
     }
 
     @Override
     public List<GroupMessageEntity> findMsg(String groupId, long maxMsgId, long minMsgId, int limit) {
 
-        String sql = "select * from im_group_message where GroupId = :groupId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId  ORDER BY MsgID DESC LIMIT :limit";
-
+//        String sql = "select * from im_group_message where GroupId = :groupId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId  ORDER BY MsgID DESC LIMIT :limit";
+//
         List<GroupMessageEntity> daos = new LinkedList<GroupMessageEntity>();
-
-        try(Connection conn = sql2o.open()) {
-            List<GroupMessageEntity> result = conn.createQuery(sql)
-                    .addParameter("groupId", groupId)
-                    .addParameter("maxMsgId", maxMsgId)
-                    .addParameter("minMsgId", minMsgId)
-                    .addParameter("limit", limit)
-                    .executeAndFetch(GroupMessageEntity.class);
-
-            daos.addAll(result);
-        }
-
+//
+//        try(Connection conn = sql2o.open()) {
+//            List<GroupMessageEntity> result = conn.createQuery(sql)
+//                    .addParameter("groupId", groupId)
+//                    .addParameter("maxMsgId", maxMsgId)
+//                    .addParameter("minMsgId", minMsgId)
+//                    .addParameter("limit", limit)
+//                    .executeAndFetch(GroupMessageEntity.class);
+//
+//            daos.addAll(result);
+//        }
+//
         return daos;
 
     }
 
     @Override
     public GroupMessageEntity findMsgByRId(long rId, String fromUserId, String groupId) {
-        String sql = "SELECT * FROM im_group_message WHERE RId = :rId AND FromUserID = :fromUserId AND GroupId = :groupId";
+//        String sql = "SELECT * FROM im_group_message WHERE RId = :rId AND FromUserID = :fromUserId AND GroupId = :groupId";
+//
+//        try(Connection conn = sql2o.open()) {
+//            return conn.createQuery(sql)
+//                    .addParameter("rId", rId)
+//                    .addParameter("fromUserId", fromUserId)
+//                    .addParameter("groupId", groupId)
+//                    .executeAndFetchFirst(GroupMessageEntity.class);
+//
+//        }
 
-        try(Connection conn = sql2o.open()) {
-            return conn.createQuery(sql)
-                    .addParameter("rId", rId)
-                    .addParameter("fromUserId", fromUserId)
-                    .addParameter("groupId", groupId)
-                    .executeAndFetchFirst(GroupMessageEntity.class);
-
-        }
+        return null;
     }
 }

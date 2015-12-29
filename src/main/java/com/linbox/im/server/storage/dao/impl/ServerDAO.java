@@ -15,6 +15,7 @@ import redis.clients.jedis.JedisPool;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lrsec on 12/29/15.
@@ -32,73 +33,79 @@ public class ServerDAO implements IServerDAO {
     @Value("${im.port}")
     private String port;
 
+    private ConcurrentHashMap<String, String> concurrentHashMap = new ConcurrentHashMap<>();
+
     @Override
     public void registerServer() {
-        if (StringUtils.isBlank(ip) || StringUtils.isBlank(port)) {
-            logger.error("ip or port is empty when insert ServierInfoDao. ip: {}. port: {}", StringUtils.trimToEmpty(ip), StringUtils.trimToEmpty(port));
-            throw new IMException("ip or port could not be empty. ip: " + StringUtils.trimToEmpty(ip) + ". port: " + StringUtils.trimToEmpty(port));
-        }
-
-        String info = StringUtils.trim(ip) + ":" + StringUtils.trim(port);
-
-        logger.debug("Register server: {}", info);
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.zadd(RedisKey.IP_REGISTRY, 0, info);
-        }
+//        if (StringUtils.isBlank(ip) || StringUtils.isBlank(port)) {
+//            logger.error("ip or port is empty when insert ServierInfoDao. ip: {}. port: {}", StringUtils.trimToEmpty(ip), StringUtils.trimToEmpty(port));
+//            throw new IMException("ip or port could not be empty. ip: " + StringUtils.trimToEmpty(ip) + ". port: " + StringUtils.trimToEmpty(port));
+//        }
+//
+//        String info = StringUtils.trim(ip) + ":" + StringUtils.trim(port);
+//
+//        logger.debug("Register server: {}", info);
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            jedis.zadd(RedisKey.IP_REGISTRY, 0, info);
+//        }
     }
 
     @Override
     public Set<String> getServers() {
         Set<String> result = new LinkedHashSet<>();
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            result.addAll(jedis.zrange(RedisKey.IP_REGISTRY, 0, -1));
-        } catch (Exception e) {
-            logger.error("Get IM server list from redis fail.", e);
-        }
-
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            result.addAll(jedis.zrange(RedisKey.IP_REGISTRY, 0, -1));
+//        } catch (Exception e) {
+//            logger.error("Get IM server list from redis fail.", e);
+//        }
+//
         return result;
     }
 
     @Override
     public String generatePassword(long userId) {
         String token = AESUtils.generatePassword();
-
-        String key= RedisKey.getIMPassword(userId);
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.setex(key,3600, token);
-        }
-
+//
+//        String key= RedisKey.getIMPassword(userId);
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            jedis.setex(key,3600, token);
+//        }
+//
         return token;
     }
 
     @Override
     public String getPassword(long userId) {
         String password = null;
-        try (Jedis jedis = jedisPool.getResource()) {
-            password = jedis.get(RedisKey.getIMPassword(userId));
-        }
-
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            password = jedis.get(RedisKey.getIMPassword(userId));
+//        }
+//
         return password;
     }
 
     @Override
     public void registerConnection(String userId, String address) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.hset(RedisKey.CONNECT_REGISTRY, userId, address);
-        }
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            jedis.hset(RedisKey.CONNECT_REGISTRY, userId, address);
+//        }
+
+        concurrentHashMap.put(userId, address);
     }
 
     @Override
     public String getConnection(String userId) {
-        String record = null;
+//        String record = null;
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            record = jedis.hget(RedisKey.CONNECT_REGISTRY, userId);
+//        }
+//
+//        return record;
 
-        try (Jedis jedis = jedisPool.getResource()) {
-            record = jedis.hget(RedisKey.CONNECT_REGISTRY, userId);
-        }
-
-        return record;
+        return concurrentHashMap.get(userId);
     }
 }

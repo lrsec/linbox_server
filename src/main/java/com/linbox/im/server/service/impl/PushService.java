@@ -30,8 +30,8 @@ import java.util.List;
 public class PushService implements IPushService {
     private static Logger logger = LoggerFactory.getLogger(PushService.class);
 
-    @Autowired
-    private JedisPool jedisPool;
+//    @Autowired
+//    private JedisPool jedisPool;
 
     @Autowired
     private IInboxService inboxService;
@@ -91,57 +91,57 @@ public class PushService implements IPushService {
 
     private int getTotalUnread(String userId) {
         int unread=0;
-
-        if (StringUtils.isBlank(userId)) {
-            logger.debug("Blank userId when getting total unread");
-            return unread;
-        }
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            //获取缓存中新朋友的集合的长度 即新朋友的个数
-            unread += Math.max(0, jedis.hlen(RedisKey.getFriendRequestsKey(Long.parseLong(userId))).intValue());
-
-            //获取缓存中新评论的个数
-            String newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewCommentsCount);
-            if (StringUtils.isNotBlank(newCount)) {
-                unread += Math.max(0, Integer.parseInt(newCount));
-            }
-
-            //获取缓存中未读帮帮忙的个数
-            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpCommentCount);
-            if (StringUtils.isNotBlank(newCount)) {
-                unread += Math.max(0, Integer.parseInt(newCount));
-            }
-
-            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpInviteCount);
-            if (StringUtils.isNotBlank(newCount)) {
-                unread += Math.max(0, Integer.parseInt(newCount));
-            }
-
-            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpPointCount);
-            if (StringUtils.isNotBlank(newCount)) {
-                unread += Math.max(0, Integer.parseInt(newCount));
-            }
-
-            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpCommentLikeCount);
-            if (StringUtils.isNotBlank(newCount)) {
-                unread += Math.max(0, Integer.parseInt(newCount));
-            }
-
-            //获取缓存中未读赞的个数
-            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewLikesCount);
-            if (StringUtils.isNotBlank(newCount)) {
-                unread += Math.max(0, Integer.parseInt(newCount));
-            }
-
-            // 获取未读消息总数
-            unread += inboxService.getTotalUnreadCount(userId);
-        } catch (Exception e) {
-            logger.error("Get exception for getting total unread for user " + userId, e);
-        }
-
-        unread = Math.max(1, unread);
-
+//
+//        if (StringUtils.isBlank(userId)) {
+//            logger.debug("Blank userId when getting total unread");
+//            return unread;
+//        }
+//
+//        try (Jedis jedis = jedisPool.getResource()) {
+//            //获取缓存中新朋友的集合的长度 即新朋友的个数
+//            unread += Math.max(0, jedis.hlen(RedisKey.getFriendRequestsKey(Long.parseLong(userId))).intValue());
+//
+//            //获取缓存中新评论的个数
+//            String newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewCommentsCount);
+//            if (StringUtils.isNotBlank(newCount)) {
+//                unread += Math.max(0, Integer.parseInt(newCount));
+//            }
+//
+//            //获取缓存中未读帮帮忙的个数
+//            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpCommentCount);
+//            if (StringUtils.isNotBlank(newCount)) {
+//                unread += Math.max(0, Integer.parseInt(newCount));
+//            }
+//
+//            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpInviteCount);
+//            if (StringUtils.isNotBlank(newCount)) {
+//                unread += Math.max(0, Integer.parseInt(newCount));
+//            }
+//
+//            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpPointCount);
+//            if (StringUtils.isNotBlank(newCount)) {
+//                unread += Math.max(0, Integer.parseInt(newCount));
+//            }
+//
+//            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewForumHelpCommentLikeCount);
+//            if (StringUtils.isNotBlank(newCount)) {
+//                unread += Math.max(0, Integer.parseInt(newCount));
+//            }
+//
+//            //获取缓存中未读赞的个数
+//            newCount = jedis.hget(RedisKey.getUserUnReadCountsKey(Long.parseLong(userId)), NotifyMessageDataItems.NewLikesCount);
+//            if (StringUtils.isNotBlank(newCount)) {
+//                unread += Math.max(0, Integer.parseInt(newCount));
+//            }
+//
+//            // 获取未读消息总数
+//            unread += inboxService.getTotalUnreadCount(userId);
+//        } catch (Exception e) {
+//            logger.error("Get exception for getting total unread for user " + userId, e);
+//        }
+//
+//        unread = Math.max(1, unread);
+//
         return unread;
     }
 

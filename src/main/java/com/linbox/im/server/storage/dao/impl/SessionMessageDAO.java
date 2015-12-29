@@ -22,58 +22,60 @@ public class SessionMessageDAO implements ISessionMessageDAO {
 
     @Override
     public SessionMessageEntity insert(Message msg) {
-        String sql = "insert into im_session_message set RId = :rId, SessionId = :sessionId, MsgID = :msgId, FromUserID = :fromUserId, ToUserID = :toUserId, MimeType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
-
+//        String sql = "insert into im_session_message set RId = :rId, SessionId = :sessionId, MsgID = :msgId, FromUserID = :fromUserId, ToUserID = :toUserId, MimeType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
+//
         SessionMessageEntity dao = SessionMessageEntity.convertToDao(msg);
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(sql)
-                    .addParameter("rId", dao.RId)
-                    .addParameter("sessionId", dao.SessionId)
-                    .addParameter("msgId", dao.MsgID)
-                    .addParameter("fromUserId", dao.FromUserID)
-                    .addParameter("toUserId", dao.ToUserID)
-                    .addParameter("mimeType", dao.MimeType)
-                    .addParameter("content", dao.Content)
-                    .addParameter("sendTime", dao.SendTime)
-                    .addParameter("created", dao.Created)
-                    .executeUpdate();
-        }
-
+//        try (Connection conn = sql2o.open()) {
+//            conn.createQuery(sql)
+//                    .addParameter("rId", dao.RId)
+//                    .addParameter("sessionId", dao.SessionId)
+//                    .addParameter("msgId", dao.MsgID)
+//                    .addParameter("fromUserId", dao.FromUserID)
+//                    .addParameter("toUserId", dao.ToUserID)
+//                    .addParameter("mimeType", dao.MimeType)
+//                    .addParameter("content", dao.Content)
+//                    .addParameter("sendTime", dao.SendTime)
+//                    .addParameter("created", dao.Created)
+//                    .executeUpdate();
+//        }
+//
         return dao;
     }
 
     @Override
     public List<SessionMessageEntity> findMsg(String sessionId, long maxMsgId, long minMsgId, int limit) {
-        String sql = "select * from im_session_message where SessionId = :sessionId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId ORDER BY MsgID DESC LIMIT :limit";
-
+//        String sql = "select * from im_session_message where SessionId = :sessionId  AND MsgID <= :maxMsgId AND MsgID > :minMsgId ORDER BY MsgID DESC LIMIT :limit";
+//
         List<SessionMessageEntity> daos = new LinkedList<SessionMessageEntity>();
-
-        try(Connection conn = sql2o.open()) {
-            List<SessionMessageEntity> result = conn.createQuery(sql)
-                    .addParameter("sessionId", sessionId)
-                    .addParameter("maxMsgId", maxMsgId)
-                    .addParameter("minMsgId", minMsgId)
-                    .addParameter("limit", limit)
-                    .executeAndFetch(SessionMessageEntity.class);
-
-            daos.addAll(result);
-        }
-
+//
+//        try(Connection conn = sql2o.open()) {
+//            List<SessionMessageEntity> result = conn.createQuery(sql)
+//                    .addParameter("sessionId", sessionId)
+//                    .addParameter("maxMsgId", maxMsgId)
+//                    .addParameter("minMsgId", minMsgId)
+//                    .addParameter("limit", limit)
+//                    .executeAndFetch(SessionMessageEntity.class);
+//
+//            daos.addAll(result);
+//        }
+//
         return daos;
     }
 
     @Override
     public SessionMessageEntity findMsgByRId(long rId, String fromUserId, String toUserId) {
-        String sql = "select * from im_session_message where RId = :rid AND FromUserID = :fromUserId AND ToUserID = :toUserId";
+//        String sql = "select * from im_session_message where RId = :rid AND FromUserID = :fromUserId AND ToUserID = :toUserId";
+//
+//        try(Connection conn = sql2o.open()) {
+//            return conn.createQuery(sql)
+//                    .addParameter("rid", rId)
+//                    .addParameter("fromUserId", fromUserId)
+//                    .addParameter("toUserId", toUserId)
+//                    .executeAndFetchFirst(SessionMessageEntity.class);
+//
+//        }
 
-        try(Connection conn = sql2o.open()) {
-            return conn.createQuery(sql)
-                    .addParameter("rid", rId)
-                    .addParameter("fromUserId", fromUserId)
-                    .addParameter("toUserId", toUserId)
-                    .executeAndFetchFirst(SessionMessageEntity.class);
-
-        }
+        return null;
     }
 
 }
