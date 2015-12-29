@@ -18,8 +18,8 @@ import java.util.List;
 @Service
 public class GroupMessageDao implements IGroupMessageDAO {
 
-    @Autowired
-    private Sql2o sql2o;
+//    @Autowired
+//    private Sql2o sql2o;
 
     @Override
     public GroupMessageEntity insert(Message msg) {

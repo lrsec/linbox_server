@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
  * Created by lrsec on 7/3/15.
  */
@@ -20,8 +23,25 @@ public class OutboxService implements IOutboxService {
 //    @Autowired
 //    private JedisPool jedisPool;
 
+    private final ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> inbox = new ConcurrentHashMap<>();
+
     @Override
     public void put(String userId, String msg) {
+
+        ConcurrentLinkedQueue<String> queue = inbox.get(userId);
+        if (queue == null) {
+            queue = new ConcurrentLinkedQueue<>();
+            queue.add(msg);
+
+            ConcurrentLinkedQueue<String> oldQueue = inbox.putIfAbsent(userId, queue);
+            if (oldQueue != null) {
+                oldQueue.addAll(queue);
+            }
+
+        } else {
+            queue.add(msg);
+        }
+
 //        if(StringUtils.isBlank(userId)) {
 //            logger.error("Get empty user id when saving outbox message");
 //            return;
@@ -37,7 +57,19 @@ public class OutboxService implements IOutboxService {
 
     @Override
     public String get(String userId) {
+
         String result = null;
+
+        ConcurrentLinkedQueue<String> queue = inbox.get(userId);
+
+        if (queue != null) {
+            result = queue.poll();
+        }
+
+        return result;
+
+
+//        String result = null;
 //
 //        if(StringUtils.isBlank(userId)) {
 //            logger.error("Get empty user id when getting outbox message");
@@ -52,6 +84,6 @@ public class OutboxService implements IOutboxService {
 //
 //        }
 //
-        return result;
+//        return result;
     }
 }

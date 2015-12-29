@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MessageDAO implements IMessageDAO {
     private static Logger logger = LoggerFactory.getLogger(MessageDAO.class);
     
-    @Autowired
-    private JedisPool jedisPool;
+//    @Autowired
+//    private JedisPool jedisPool;
 
     private AtomicLong atomicLong = new AtomicLong(0);
 

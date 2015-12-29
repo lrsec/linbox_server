@@ -18,48 +18,6 @@
         </property>
     </bean>
 
-    <!--Mysql Configs-->
-    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
-        <property name="poolName" value="springHikariCP" />
-        <property name="connectionTestQuery" value="SELECT 1" />
-        <property name="dataSourceClassName"       value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
-        <property name="dataSourceProperties">
-            <props>
-                <prop key="url">${mysql.url}</prop>
-                <prop key="user">${mysql.user}</prop>
-                <prop key="password">${mysql.password}</prop>
-                <prop key="cachePrepStmts">${mysql.cachePrepStmts}</prop>
-                <prop key="prepStmtCacheSize">${mysql.prepStmtCacheSize}</prop>
-                <prop key="prepStmtCacheSqlLimit">${mysql.prepStmtCacheSqlLimit}</prop>
-            </props>
-        </property>
-    </bean>
-
-    <bean id="mysqlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
-        <constructor-arg ref="hikariConfig" />
-    </bean>
-
-    <bean id="sql2o" class="org.sql2o.Sql2o">
-        <constructor-arg type='javax.sql.DataSource' ref="mysqlDataSource"/>
-    </bean>
-    <!--Mysql Configs-->
-
-    <!--Redis Configs-->
-    <bean id="redisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
-        <property name="maxTotal" value="${redis.maxActive}"/>
-        <property name="maxIdle" value="${redis.maxIdle}" />
-        <property name="maxWaitMillis" value="${redis.maxWaitMilli}"/>
-        <property name="testOnBorrow" value="true"/>
-    </bean>
-
-    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
-        <constructor-arg name="poolConfig" ref="redisPoolConfig"/>
-        <constructor-arg name="host" value="${redis.host}"/>
-        <constructor-arg name="port" value="${redis.port}"/>
-        <constructor-arg name="timeout" value="${redis.timeout}"/>
-    </bean>
-    <!--Redis Configs-->
-
     <!--Kafka Configs-->
     <bean id="kafkaProducer" class="org.apache.kafka.clients.producer.KafkaProducer">
         <constructor-arg name="configs">

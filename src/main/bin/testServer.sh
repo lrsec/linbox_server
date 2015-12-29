@@ -1,0 +1,1 @@
+java -cp ".:../lib/*:../config:" -Xloggc:tcpServer.gc.log -verbose:gc -XX:-UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=10M -XX:-PrintGCDetails -XX:HeapDumpPath=./tcp_server.hprof -XX:-HeapDumpOnOutOfMemoryError -Xms6g -Xmx10g  com.linbox.im.server.ImTcpRouterServer

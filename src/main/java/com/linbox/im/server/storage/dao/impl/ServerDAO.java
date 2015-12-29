@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerDAO implements IServerDAO {
     private static Logger logger = LoggerFactory.getLogger(ServerDAO.class);
 
-    @Autowired
-    private JedisPool jedisPool;
+//    @Autowired
+//    private JedisPool jedisPool;
 
     @Value("${im.ip}")
     private String ip;

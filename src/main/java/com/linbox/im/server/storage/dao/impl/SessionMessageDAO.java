@@ -17,8 +17,8 @@ import java.util.List;
 @Service
 public class SessionMessageDAO implements ISessionMessageDAO {
 
-    @Autowired
-    private Sql2o sql2o;
+//    @Autowired
+//    private Sql2o sql2o;
 
     @Override
     public SessionMessageEntity insert(Message msg) {

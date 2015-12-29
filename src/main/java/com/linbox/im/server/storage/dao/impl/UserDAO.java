@@ -18,8 +18,8 @@ public class UserDAO implements IUserDAO {
 
     public static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
-    @Autowired
-    private Sql2o sql2o;
+//    @Autowired
+//    private Sql2o sql2o;
 
     public String getUserName(String userId) {
 //        if (StringUtils.isBlank(userId)) {

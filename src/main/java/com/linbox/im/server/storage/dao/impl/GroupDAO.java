@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GroupDAO implements IGroupDAO {
     private static Logger logger = LoggerFactory.getLogger(GroupDAO.class);
 
-    @Autowired
-    private Sql2o sql2o;
-
-    @Autowired
-    private JedisPool jedisPool;
+//    @Autowired
+//    private Sql2o sql2o;
+//
+//    @Autowired
+//    private JedisPool jedisPool;
 
     //TODO TEST
     private AtomicLong atomicLong = new AtomicLong(0);
