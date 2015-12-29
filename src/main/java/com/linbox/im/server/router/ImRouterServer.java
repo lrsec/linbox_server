@@ -132,7 +132,7 @@ public class ImRouterServer {
             consumer.subscribe(Arrays.asList(topic));
 
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(0);
+                ConsumerRecords<String, String> records = consumer.poll(1000);
                 for (ConsumerRecord<String, String> record : records) {
                     try {
                         handler.handle(record);

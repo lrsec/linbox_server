@@ -19,7 +19,7 @@ public class GroupMessageEntity {
     public long MsgID;
 
     // 消息体类型
-    public String MineType;
+    public String MimeType;
 
     // 消息体内容
     public String Content;
@@ -41,7 +41,7 @@ public class GroupMessageEntity {
         dao.FromUserID = Long.parseLong(msg.fromUserId);
         dao.GroupId = msg.groupId;
         dao.MsgID = msg.msgId;
-        dao.MineType = msg.mimeType;
+        dao.MimeType = msg.mimeType;
         dao.Content = msg.content;
         dao.SendTime = msg.sendTime == 0 ? System.currentTimeMillis() : msg.sendTime;
         dao.Created = dao.SendTime;

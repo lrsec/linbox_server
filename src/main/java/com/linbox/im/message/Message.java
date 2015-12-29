@@ -51,7 +51,7 @@ public class Message {
         m.fromUserId = Long.toString(dao.FromUserID);
         m.toUserId = Long.toString(dao.ToUserID);
         m.msgId = dao.MsgID;
-        m.mimeType = dao.MineType;
+        m.mimeType = dao.MimeType;
         m.content = dao.Content;
         m.sendTime = dao.SendTime;
         m.type = MessageType.Session.getValue();
@@ -65,7 +65,7 @@ public class Message {
         m.fromUserId = fromUserId;
         m.groupId = groupId;
         m.msgId = dao.MsgID;
-        m.mimeType = dao.MineType;
+        m.mimeType = dao.MimeType;
         m.content = dao.Content;
         m.sendTime = dao.SendTime;
         m.type = MessageType.Group.getValue();

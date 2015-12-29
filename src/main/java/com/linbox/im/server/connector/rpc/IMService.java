@@ -70,7 +70,7 @@ public class IMService implements IIMService {
 
     @Override
     public void sendMessage(String fromUserId, String toId, String mineType, String content, int messageType, String creatorId) {
-        logger.debug("Received message from rpc call. From: {}. To: {}. MineType: {}. Content: {}. MessageType: {}. CreatorID: {}", fromUserId, toId, mineType, content, messageType, creatorId);
+        logger.debug("Received message from rpc call. From: {}. To: {}. MimeType: {}. Content: {}. MessageType: {}. CreatorID: {}", fromUserId, toId, mineType, content, messageType, creatorId);
 
         if (Strings.isNullOrEmpty(fromUserId)) {
             logger.error("Sender user id could not be blank");

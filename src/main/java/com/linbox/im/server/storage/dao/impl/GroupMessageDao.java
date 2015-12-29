@@ -23,7 +23,7 @@ public class GroupMessageDao implements IGroupMessageDAO {
 
     @Override
     public GroupMessageEntity insert(Message msg) {
-        String sql = "INSERT INTO im_group_message set RId = :rId, GroupId = :groupId, FromUserID = :fromUserId, MsgID = :msgId, MineType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
+        String sql = "INSERT INTO im_group_message set RId = :rId, GroupId = :groupId, FromUserID = :fromUserId, MsgID = :msgId, MimeType = :mimeType, Content = :content, SendTime = :sendTime, Created = :created";
 
         GroupMessageEntity dao = GroupMessageEntity.convertToGroupMsgDao(msg);
 
@@ -33,7 +33,7 @@ public class GroupMessageDao implements IGroupMessageDAO {
                     .addParameter("groupId", dao.GroupId)
                     .addParameter("fromUserId", dao.FromUserID)
                     .addParameter("msgId", dao.MsgID)
-                    .addParameter("mimeType", dao.MineType)
+                    .addParameter("mimeType", dao.MimeType)
                     .addParameter("content", dao.Content)
                     .addParameter("sendTime", dao.SendTime)
                     .addParameter("created", dao.Created)

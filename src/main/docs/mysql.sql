@@ -7,7 +7,7 @@ CREATE TABLE `im_session_message` (
   `FromUserID` BIGINT(20)  NOT NULL,
   `ToUserID`   BIGINT(20)  NOT NULL,
   `MsgID`      BIGINT(20)  NOT NULL COMMENT '消息编号',
-  `MineType`   VARCHAR(64) NOT NULL COMMENT '多媒体文件类型',
+  `MimeType`   VARCHAR(64) NOT NULL COMMENT '多媒体文件类型',
   `Content`    VARCHAR(500) DEFAULT NULL COMMENT '文件内容',
   `SendTime`   BIGINT(20)  NOT NULL COMMENT '服务器端接收到消息的时间,消息发送时间',
   `Created`    BIGINT(20)  NOT NULL
@@ -23,7 +23,7 @@ CREATE TABLE `im_group_message` (
   `GroupId`  VARCHAR(32) NOT NULL COMMENT '对话 session id',
   `FromUserID` BIGINT(20)  NOT NULL,
   `MsgID`      BIGINT(20)  NOT NULL COMMENT '消息编号',
-  `MineType`   VARCHAR(64) NOT NULL COMMENT '多媒体文件类型',
+  `MimeType`   VARCHAR(64) NOT NULL COMMENT '多媒体文件类型',
   `Content`    VARCHAR(500) DEFAULT NULL COMMENT '文件内容',
   `SendTime`   BIGINT(20)  NOT NULL COMMENT '服务器端接收到消息的时间,消息发送时间',
   `Created`    BIGINT(20)  NOT NULL COMMENT '记录创建时间',
